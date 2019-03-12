@@ -9,12 +9,15 @@ import java.io.FileWriter;
 *the Home class is where the user navigates to different tabs, sees the current goals and set news ones
 */
 public class Home {
+
+  private JSONObject userData;
   /**
   * checks if the user.json data file exists within the root directory
   */
-  public static boolean userFileExists() {
+
+  public boolean userFileExists() {
     //checks if file exists and if it doesn't, print message
-    File userFile = new File("./user.json");
+    File userFile = new File("./user.json");//JSON file
     if(userFile.exists()) {
       return true;
     }
@@ -24,13 +27,14 @@ public class Home {
   /**
   * prompts the user for navigation to different classes (Goals, Expenses, Today, etc)
   */
-  public static void navigation() {
+  public void navigation() {
 
     System.out.println("To navigate TrackR+, use the following commands: ");
     System.out.println("Press 't' to access the today's tab");
     System.out.println("Press 'g' to access your current goals or set a new one");
     System.out.println("Press 'e' to access your expense history");
     System.out.println("Press 'q' to quit the application");
+
 
     // keep taking user input until the user enters a valid option
     Scanner navInput = new Scanner(System.in);
@@ -48,15 +52,19 @@ public class Home {
       }
     }
 
+    Today today= new Today();
+    Goals goals= new Goals();
+    Expenses expenses= new Expenses();
+
     switch(option) {
       case 't':
-        Today.todayNavigation();
+        today.todayNavigation();
         break;
       case 'g':
-        Goals.goalsNavigation();
+        goals.goalsNavigation();
         break;
       case 'e':
-        Expenses.expensesNavigation();
+        expenses.expensesNavigation();
         break;
       case 'q':
         System.out.print("Goodbye\n");
@@ -67,12 +75,12 @@ public class Home {
 
   }
 
-  public static JSONObject createJSONObject() {
+  public JSONObject getJSONObjectFromFile() {
     try {
       // read the user.json file as a String
-      String jsonContent = new Scanner(new File("./user.json")).useDelimiter("\\Z").next();
+      String jsonContent = new Scanner(new File("./user.json")).useDelimiter("\\Z").next();// JSON file
       // create a JSONObject from the String `jsonContent`
-      JSONObject userData = new JSONObject(jsonContent);
+      userData = new JSONObject(jsonContent); //JSON object
       return userData;
     }
     // catch the exception if `user.json` doesn't exist (can't happen because Login takes care of that)
@@ -82,12 +90,16 @@ public class Home {
     return null;
   }
 
+  public JSONObject getJSONObject(){
+    return userData;
+  }
+
   /**
   * put the userData JSONObject (after updating it and stuff) back into the user.json file
   */
-  public static void putJSONObjectIntoFile(JSONObject data) {
+  public void putJSONObjectIntoFile(JSONObject data) {
     try {
-      File userFile = new File("user.json");
+      File userFile = new File("user.json"); //JSON file
       FileWriter fileWriter = new FileWriter(userFile.getAbsoluteFile());
       String jsonText = data.toString();
       fileWriter.write(jsonText);
@@ -105,12 +117,15 @@ public class Home {
   public static void main(String[] args) {
     System.out.print("Welcome to TrackR+\n");
 
-    if(userFileExists()) {
-      navigation();
+    Home home= new Home();
+
+    if(home.userFileExists()) {
+      home.navigation();
     }
     else {
-      Login.userLogin();
-      navigation();
+      Login login= new Login();
+      login.userLogin();
+      home.navigation();
     }
   }
 }
