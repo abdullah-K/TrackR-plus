@@ -8,16 +8,16 @@ outgoing flow of money into their personal account.
 
 The GUI based version, allows the user to navigate between 3 menus, including a Today tab which has a detailed pie-chart that describes the users spending, an Expenses tab which allows the user to log different expenses according to several categories, and a goals tab which gives the user the ability to set a new savings goal.
 
-## Running TextBased Version
+## Running text-based version
 to compile:
 `javac -cp .:lib/java-json.jar *.java`
 
 to execute:
 `java -cp .:lib/java-json.jar Home`
 
-## Running GUIBased Version 
+## Running GUI-based version 
 to compile: 
-`javac -cp .:jrxrt.jar *.java`
+`javac -cp .:lib/jrxrt.jar *.java`
 
 to execute:
 `java LoginGUI`
