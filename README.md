@@ -17,7 +17,7 @@ to execute:
 
 ## Running GUI-based version 
 to compile: 
-`javac -cp .:lib/jrxrt.jar *.java`
+`javac -cp .:lib/java-json.jar:lib/java-json.jar *.java`
 
 to execute:
 `java LoginGUI`
