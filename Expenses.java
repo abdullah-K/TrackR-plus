@@ -11,31 +11,59 @@ import java.io.IOException;
 *the Expenses class allows the user to see the expenses history
 */
 public class Expenses {
-  public static double totalExpenses;
-  // private static ArrayList<double> expensesList = new ArrayList<double>();
-  private static ArrayList<Double> expensesList = new ArrayList<Double>();
-  private static JSONArray expensesListJSON;
 
+  private double totalExpenses;
+  public ArrayList<Double> expensesList1 = new ArrayList<Double>();
+  public ArrayList<Double> expensesList2= new ArrayList<Double>();
+  public ArrayList<Double> expensesList3= new ArrayList<Double>();
+  public ArrayList<Double> expensesList4= new ArrayList<Double>();
+  public ArrayList<Double> expensesList5= new ArrayList<Double>();
+  public JSONArray expensesListJSON1;
+  public JSONArray expensesListJSON2;
+  public JSONArray expensesListJSON3;
+  public JSONArray expensesListJSON4;
+  public JSONArray expensesListJSON5;
+
+  Home home = new Home();
   // read JSON content from the JSON file and create a JSONObject from it (which can be used throughout this class)
-  private static JSONObject userData = Home.createJSONObject();
-
+  private JSONObject userData = home.getJSONObjectFromFile();//JSON object
   /**
   * create a new key in the JSON file (if it doesn't already exist) which will be used for
   */
-  public static void createExpensesList() {
-    // createJSONObject();
-    expensesListJSON = new JSONArray(expensesList); //array list into JSONArray
+  public void createExpensesList(){
+    userData = home.getJSONObjectFromFile();
+    //1
+    expensesListJSON1 = new JSONArray(expensesList1); //array list into JSONArray
     // checks if expensesArray key exists
-    userData.put("expensesArray", expensesListJSON); //expensesListJSON is put into userData
-    // putJSONObjectIntoFile();
-    Home.putJSONObjectIntoFile(userData);
+    userData.put("expensesArray1", expensesListJSON1); //expensesListJSON is put into userData
+
+    //2
+    expensesListJSON2 = new JSONArray(expensesList2);
+    userData.put("expensesArray2", expensesListJSON2);
+
+    //3
+    expensesListJSON3= new JSONArray(expensesList3);
+    userData.put("expensesArray3", expensesListJSON3);
+
+    //4
+    expensesListJSON4= new JSONArray(expensesList4);
+    userData.put("expensesArray4", expensesListJSON4);
+
+    //5
+    expensesListJSON5 = new JSONArray(expensesList5);
+    userData.put("expensesArray5", expensesListJSON5);
+    home.putJSONObjectIntoFile(userData);
   }
 
   /**
   *prompts the user for navigation in the expenses class
   */
-  public static void expensesNavigation(){
-    createExpensesList();
+  public void expensesNavigation(){
+    userData = home.getJSONObjectFromFile();
+    JSONObject dummyJSONObject = home.getJSONObjectFromFile();
+    if(!dummyJSONObject.has("expensesArray1") || !dummyJSONObject.has("expensesArray2") || !dummyJSONObject.has("expensesArray3") || !dummyJSONObject.has("expensesArray4") || !dummyJSONObject.has("expensesArray5")) {
+      createExpensesList();
+    }
     System.out.println("To navigate the Expenses tab, use the following commands: ");
     System.out.println("Press 'h' to access your expenses history");
     System.out.println("Press 'b' to go back");
@@ -61,46 +89,55 @@ public class Expenses {
         expensesNavigation();
         break;
       case 'b':
-        Home.navigation();
+        home.navigation();
         break;
       case 'q':
         System.out.print("Goodbye\n");
         System.exit(0);
       default:
         System.out.print("Invalid option. Please select one of the navigation options.\n");
-        //option= navInput.next().toLowerCase().charAt(0);
     }
   }
 
   /**
   * adds amount to expenses list
   */
-  public static void logToExpensesList(double amount){
-    expensesList.add(amount);
-    createExpensesList();
-  }
+  public void logToExpensesList(double amount){
 
-  /**
-  * sets what has been spent
-  */
-  public void setExpenses(double expenses){
-    totalExpenses = expenses;
+    createExpensesList();
   }
 
   /**
   * shows the list of money spent by the user
   */
-  public static void spendingHistory() {
-    if(expensesListJSON.length() == 0) {
+  public void spendingHistory() {
+    userData = home.getJSONObjectFromFile();
+    // convert the Objects returned by userData.get() to  JSONArrays in order to get its length
+    if(((JSONArray) userData.get("expensesArray1")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray2")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray3")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray4")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray5")).length() == 0) {
       System.out.print("You have no spending history yet.\n");
     }
     else {
-      System.out.print("Here are all your expenses in chronological order: " + expensesListJSON.toString() + "\n");
-      double sum = 0;
-      for (double i : expensesList) {
-        sum += i;
+      System.out.print("Here are all your expenses categorically: " + "\n");
+      System.out.print("Education category " +  ((JSONArray) userData.get("expensesArray1")).toString() + "\n");
+      System.out.print("Home category " +  ((JSONArray) userData.get("expensesArray2")).toString() + "\n");
+      System.out.print("Auto and Transportation category " +  ((JSONArray) userData.get("expensesArray3")).toString() + "\n");
+      System.out.print("Food and Drinks category " +  ((JSONArray) userData.get("expensesArray4")).toString() + "\n");
+      System.out.print("Other category " +  ((JSONArray) userData.get("expensesArray5")).toString() + "\n");
+      double sum = 0.0;
+
+      // go over the JSONArrays and get each element's value and add it to the total sum
+      for(int j = 1; j < 6; j ++){
+        for (int i = 0; i < ((JSONArray) userData.get("expensesArray" + j)).length(); i++) {
+          sum += ((JSONArray) userData.get("expensesArray" + j)).getDouble(i);
+        }
       }
+
       System.out.print("Your total expenses are: $" + sum + "\n");
     }
   }
 }
+
