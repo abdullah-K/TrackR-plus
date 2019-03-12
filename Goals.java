@@ -8,13 +8,14 @@ import org.json.JSONArray;
 */
 public class Goals{
 
-  private static double savingsGoal;
-  private static JSONObject userData = Home.createJSONObject();
+  private double savingsGoal;
+  Home home= new Home();
+  private JSONObject userData = home.getJSONObject();//JSON object
 
   /**
   *prompts the user for navigation in goals class
   */
-  public static void goalsNavigation() {
+  public void goalsNavigation() {
     System.out.println("To navigate the Goals tab, use the following commands: ");
     System.out.println("Press 'c' to display your current savings goal");
     System.out.println("Press 'n' to set a new savings goal");
@@ -47,7 +48,7 @@ public class Goals{
         goalsNavigation();
         break;
       case 'b':
-        Home.navigation();
+        home.navigation(); //fix this
         break;
       case 'q':
         System.out.print("Goodbye\n");
@@ -61,7 +62,7 @@ public class Goals{
   /**
   *returns the goal of money to save
   */
-  public static double getGoal(){
+  public double getGoal(){
     return savingsGoal;
 
   }
@@ -69,7 +70,7 @@ public class Goals{
   /**
   *prompts user to enter a new goal of money to save
   */
-  public static void setNewGoal(){
+  public void setNewGoal(){
     // create a new key in the JSON file (if it doesn't already exist) which will be used for
     userData.put("savingsGoal", 0);
     System.out.println("Please enter your new savings goal: ");
@@ -79,7 +80,7 @@ public class Goals{
     savingsGoal = save;
     // code for saving the goal to the json File
     System.out.println("Your savings new goal is: "+ savingsGoal);
-    Home.putJSONObjectIntoFile(userData);
+    home.putJSONObjectIntoFile(userData); //fix this
 
   }
   // /**
