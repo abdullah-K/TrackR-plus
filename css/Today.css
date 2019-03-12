@@ -1,0 +1,43 @@
+.root {
+    -fx-background-color: #2a2a33; /*Default 363543,2a2931,1F2532 */
+
+}
+.label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Helvetica";
+}
+.default-color0.chart-pie { -fx-pie-color: #04BBE3; }
+.default-color1.chart-pie { -fx-pie-color: #2DE5A6; }
+.default-color2.chart-pie { -fx-pie-color: #FEBF44; }
+.default-color3.chart-pie { -fx-pie-color: #FF687E; }
+.default-color4.chart-pie { -fx-pie-color: #8F7AD8; }
+
+.chart-pie-label-line {
+    -fx-stroke: #FFFFFF;
+    -fx-fill: #FFFFFF;
+}
+.chart-pie-label {
+    -fx-fill: #FFFFFF;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 10;
+}
+.chart-pie:hover {
+    -fx-cursor: hand;
+}
+.chart-legend {
+    -fx-background-radius: 20;
+    -fx-font-family: "Helvetica";
+    -fx-background-color: #363543;
+    -fx-font-size: 10;
+}
+.button {
+    -fx-background-color: #30A4FB;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 20;
+    -fx-font-family: "Helvetica";
+    -fx-cursor: hand;
+    
+}
+.button:pressed {
+    -fx-background-color: rgb(46, 134, 202);
+}
