@@ -11,9 +11,7 @@ import java.io.IOException;
 */
 
 public class Login {
-  public static void main(String[] args) {
-    System.out.print("Welcome to TrackR+! Please enter some basic information to get started.");
-  }
+  
   public static void userLogin(){
     try {
       // make new User file (in the root directory)

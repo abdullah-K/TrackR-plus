@@ -15,7 +15,7 @@ public class Today{
 
   private double balance;
 
-  Home home = new Home();
+  Main main = new Main();
   Expenses expenses = new Expenses();
   Scanner navInput = new Scanner(System.in);
 
@@ -26,8 +26,8 @@ public class Today{
   *prompts the user for navigation in the today class
   */
   public void todayNavigation() {
-    userData = home.getJSONObjectFromFile();
-    JSONObject dummyJSONObject = home.getJSONObjectFromFile();
+    userData = main.getJSONObjectFromFile();
+    JSONObject dummyJSONObject = main.getJSONObjectFromFile();
     if(!dummyJSONObject.has("expensesArray1") || !dummyJSONObject.has("expensesArray2") || !dummyJSONObject.has("expensesArray3") || !dummyJSONObject.has("expensesArray4") || !dummyJSONObject.has("expensesArray5")) {
       expenses.createExpensesList();
     }
@@ -56,7 +56,7 @@ public class Today{
         todayNavigation();
         break;
       case 'b':
-        home.navigation();
+        main.navigation();
         break;
       case 'q':
         System.out.print("Goodbye\n");
@@ -68,10 +68,10 @@ public class Today{
 
   public void spendByCategory(){
     ArrayList<Double> anArray;
-    userData = home.getJSONObjectFromFile();
+    userData = main.getJSONObjectFromFile();
     System.out.println("To navigate the Categories tab, use the following commands: ");
     System.out.println("Press 'e' to register a spending action under education category");
-    System.out.println("Press 'h' to register a spending action under home category");
+    System.out.println("Press 'h' to register a spending action under main category");
     System.out.println("Press 't' to register a spending action under auto & transportation category");
     System.out.println("Press 'f' to register a spending action under food & drinks category");
     System.out.println("Press 'o' to register a spending action under others category");
@@ -119,7 +119,7 @@ public class Today{
   * spend an amount of money and log it into your expenses history
   */
   public void spend(ArrayList<Double> expenseArrayToPutIn, String category){
-    //userData = home.getJSONObjectFromFile();
+    //userData = main.getJSONObjectFromFile();
     //amount to spend has to be positive number and can't be more than what is in balance
     double balanceJSON = ((Number)userData.get("userBalance")).doubleValue();
     System.out.println("Your current balance is: " + balanceJSON);
@@ -134,17 +134,17 @@ public class Today{
       expenseArrayToPutIn.add(amount);
       userData.put("expensesArray" + category, expenseArrayToPutIn);
       //expenseArrayToPutIn.clear();
-      //home.putJSONObjectIntoFile(userData);
+      //main.putJSONObjectIntoFile(userData);
     }
-    home.putJSONObjectIntoFile(userData);
-    userData = home.getJSONObjectFromFile();
+    main.putJSONObjectIntoFile(userData);
+    userData = main.getJSONObjectFromFile();
   }
 
   /**
   * deposits an amount of money into your already-defined userBalance (from the JSON file)
   */
   public void deposit(){
-    userData = home.getJSONObjectFromFile();
+    userData = main.getJSONObjectFromFile();
     double balanceJSON = ((Number)userData.get("userBalance")).doubleValue();// the balance
 
     //amount to deposit has to be positive number
@@ -158,8 +158,8 @@ public class Today{
       //userData.remove("userBalance");
       userData.put("userBalance", balanceJSON);
     }
-    home.putJSONObjectIntoFile(userData);
-    userData = home.getJSONObjectFromFile();
+    main.putJSONObjectIntoFile(userData);
+    userData = main.getJSONObjectFromFile();
   }
 
   /*
