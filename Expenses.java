@@ -6,11 +6,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-
 /**
 *the Expenses class allows the user to see the expenses history
 */
-public class Expenses {
+public class Expenses extends Main{
+
+  Main main = new Main();
 
   private double totalExpenses;
   public ArrayList<Double> expensesList1 = new ArrayList<Double>();
@@ -24,14 +25,14 @@ public class Expenses {
   public JSONArray expensesListJSON4;
   public JSONArray expensesListJSON5;
 
-  Home home = new Home();
+  //main main = new main();
   // read JSON content from the JSON file and create a JSONObject from it (which can be used throughout this class)
-  private JSONObject userData = home.getJSONObjectFromFile();//JSON object
+  private JSONObject userData = main.getJSONObjectFromFile();//JSON object
   /**
   * create a new key in the JSON file (if it doesn't already exist) which will be used for
   */
   public void createExpensesList(){
-    userData = home.getJSONObjectFromFile();
+    userData = main.getJSONObjectFromFile();
     //1
     expensesListJSON1 = new JSONArray(expensesList1); //array list into JSONArray
     // checks if expensesArray key exists
@@ -52,15 +53,15 @@ public class Expenses {
     //5
     expensesListJSON5 = new JSONArray(expensesList5);
     userData.put("expensesArray5", expensesListJSON5);
-    home.putJSONObjectIntoFile(userData);
+    main.putJSONObjectIntoFile(userData);
   }
 
   /**
   *prompts the user for navigation in the expenses class
   */
   public void expensesNavigation(){
-    userData = home.getJSONObjectFromFile();
-    JSONObject dummyJSONObject = home.getJSONObjectFromFile();
+    userData = main.getJSONObjectFromFile();
+    JSONObject dummyJSONObject = main.getJSONObjectFromFile();
     if(!dummyJSONObject.has("expensesArray1") || !dummyJSONObject.has("expensesArray2") || !dummyJSONObject.has("expensesArray3") || !dummyJSONObject.has("expensesArray4") || !dummyJSONObject.has("expensesArray5")) {
       createExpensesList();
     }
@@ -89,7 +90,7 @@ public class Expenses {
         expensesNavigation();
         break;
       case 'b':
-        home.navigation();
+        main.navigation();
         break;
       case 'q':
         System.out.print("Goodbye\n");
@@ -111,7 +112,7 @@ public class Expenses {
   * shows the list of money spent by the user
   */
   public void spendingHistory() {
-    userData = home.getJSONObjectFromFile();
+    userData = main.getJSONObjectFromFile();
     // convert the Objects returned by userData.get() to  JSONArrays in order to get its length
     if(((JSONArray) userData.get("expensesArray1")).length() == 0 &&
       ((JSONArray) userData.get("expensesArray2")).length() == 0 &&
@@ -123,7 +124,7 @@ public class Expenses {
     else {
       System.out.print("Here are all your expenses categorically: " + "\n");
       System.out.print("Education category " +  ((JSONArray) userData.get("expensesArray1")).toString() + "\n");
-      System.out.print("Home category " +  ((JSONArray) userData.get("expensesArray2")).toString() + "\n");
+      System.out.print("main category " +  ((JSONArray) userData.get("expensesArray2")).toString() + "\n");
       System.out.print("Auto and Transportation category " +  ((JSONArray) userData.get("expensesArray3")).toString() + "\n");
       System.out.print("Food and Drinks category " +  ((JSONArray) userData.get("expensesArray4")).toString() + "\n");
       System.out.print("Other category " +  ((JSONArray) userData.get("expensesArray5")).toString() + "\n");
@@ -140,4 +141,3 @@ public class Expenses {
     }
   }
 }
-

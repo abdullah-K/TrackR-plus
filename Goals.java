@@ -9,8 +9,8 @@ import org.json.JSONArray;
 public class Goals{
 
   private double savingsGoal;
-  Home home= new Home();
-  private JSONObject userData = home.getJSONObject();//JSON object
+  Main main= new Main();
+  private JSONObject userData = main.getJSONObject();//JSON object
 
   /**
   *prompts the user for navigation in goals class
@@ -48,7 +48,7 @@ public class Goals{
         goalsNavigation();
         break;
       case 'b':
-        home.navigation(); //fix this
+        main.navigation(); //fix this
         break;
       case 'q':
         System.out.print("Goodbye\n");
@@ -80,7 +80,7 @@ public class Goals{
     savingsGoal = save;
     // code for saving the goal to the json File
     System.out.println("Your savings new goal is: "+ savingsGoal);
-    home.putJSONObjectIntoFile(userData); //fix this
+    main.putJSONObjectIntoFile(userData); //fix this
 
   }
   // /**
