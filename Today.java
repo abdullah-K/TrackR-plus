@@ -7,33 +7,44 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.Math;
 
 /**
 * the Today class allows the user to register their expenses, deposit money into their account, and shows tthe progress towards their savings goal
 */
 public class Today{
 
-  private double balance;
-
-  Main main = new Main();
-  Expenses expenses = new Expenses();
-  Scanner navInput = new Scanner(System.in);
-
+  private double balance = 0.0;
+  private static Today todayObject = null;
   // read JSON content from the JSON file and create a JSONObject from it (which can be used throughout this class)
-  private JSONObject userData; //JSON object
+  private JSONObject userData;
+
+  public static Today getTodayObject() {
+      if(todayObject == null) {
+          todayObject = new Today();
+      }
+      return todayObject;
+  }
+
+  Main main = Main.getMainObject(); 
+  Expenses expenses = Expenses.getExpObject();
+  Goals goals = Goals.getGoalsObject();
+  Scanner navInput = new Scanner(System.in);
 
   /**
   *prompts the user for navigation in the today class
   */
   public void todayNavigation() {
-    userData = main.getJSONObjectFromFile();
+    // userData = main.getJSONObjectFromFile();
+    userData = main.getJSONObject(); //added
     JSONObject dummyJSONObject = main.getJSONObjectFromFile();
-    if(!dummyJSONObject.has("expensesArray1") || !dummyJSONObject.has("expensesArray2") || !dummyJSONObject.has("expensesArray3") || !dummyJSONObject.has("expensesArray4") || !dummyJSONObject.has("expensesArray5")) {
+    if(!dummyJSONObject.has("expensesArray1")) {
       expenses.createExpensesList();
     }
     System.out.println("To navigate the Today tab, use the following commands: ");
     System.out.println("Press 's' to spend or register your expenses");
     System.out.println("Press 'd' to deposit incoming money into your account");
+    System.out.println("Press 'p' to view your savings progress");
     System.out.println("Press 'b' to go back");
     System.out.println("Press 'q' to quit the application");
 
@@ -41,7 +52,7 @@ public class Today{
     //doesn't allow user to enter char other than s,d,p,b or q
     while (true) {
       option = navInput.next().toLowerCase().charAt(0);
-      if(option=='s'||option=='d'||option=='p'||option=='b'||option=='q'){
+      if(option=='s'||option=='d'||option=='p'||option=='b'||option=='q'||option=='p'){
         break;
       }
     }
@@ -58,6 +69,10 @@ public class Today{
       case 'b':
         main.navigation();
         break;
+      case 'p':
+        progress();
+        todayNavigation();
+        break;
       case 'q':
         System.out.print("Goodbye\n");
         System.exit(0);
@@ -68,7 +83,8 @@ public class Today{
 
   public void spendByCategory(){
     ArrayList<Double> anArray;
-    userData = main.getJSONObjectFromFile();
+    // userData = main.getJSONObjectFromFile();
+    userData = main.getJSONObject(); //added
     System.out.println("To navigate the Categories tab, use the following commands: ");
     System.out.println("Press 'e' to register a spending action under education category");
     System.out.println("Press 'h' to register a spending action under main category");
@@ -91,18 +107,22 @@ public class Today{
       spend(anArray, "1");
       break;
     case 'h':
+      // expenses.updateInstanceExpensesArrays();
       anArray = expenses.expensesList2;
       spend(anArray, "2");
       break;
     case 't':
+      // expenses.updateInstanceExpensesArrays();
       anArray = expenses.expensesList3;
       spend(anArray, "3");
       break;
     case 'f':
+      // expenses.updateInstanceExpensesArrays();
       anArray = expenses.expensesList4;
       spend(anArray, "4");
       break;
     case 'o':
+      // expenses.updateInstanceExpensesArrays();
       anArray = expenses.expensesList5;
       spend(anArray, "5");
       break;
@@ -113,7 +133,6 @@ public class Today{
       System.out.print("Invalid option. Please select one of the navigation options.\n");
   }
 }
-
 
   /**
   * spend an amount of money and log it into your expenses history
@@ -133,11 +152,11 @@ public class Today{
       userData.put("userBalance", balanceJSON);
       expenseArrayToPutIn.add(amount);
       userData.put("expensesArray" + category, expenseArrayToPutIn);
-      //expenseArrayToPutIn.clear();
       //main.putJSONObjectIntoFile(userData);
     }
-    main.putJSONObjectIntoFile(userData);
-    userData = main.getJSONObjectFromFile();
+    // main.putJSONObjectIntoFile(userData);
+    main.setJSONObject(userData); //added
+    userData = main.getJSONObject();
   }
 
   /**
@@ -158,55 +177,26 @@ public class Today{
       //userData.remove("userBalance");
       userData.put("userBalance", balanceJSON);
     }
-    main.putJSONObjectIntoFile(userData);
-    userData = main.getJSONObjectFromFile();
+    // main.putJSONObjectIntoFile(userData);
+    main.setJSONObject(userData);
+    // userData = main.getJSONObjectFromFile();
+    userData = main.getJSONObject();
   }
 
-  /*
-  public String progress(){
-    double goalProgress = Goals.getGoal() - Expenses.spendingHistory();
-    if(goalProgress < 0){
-      System.out.println("You are currently $" + goalProgress + " past your set goal.");
+  public void progress(){
+    double goal = goals.getGoal();
+    double totalExp = expenses.getTotalExpenses();
+    double progress = 0.0;
+    if (totalExp < goal){
+      progress = goal - totalExp;
+      System.out.println("Good job, you are " + "$" + progress + " below your desired savings goal!");
     }
-    else{
-      System.out.println("You're on track to save money this month!");
+    else if (totalExp > goal){
+      progress = goal - totalExp;
+      System.out.println("Careful, you are " + "-$" + Math.abs(progress) + " above your desired savings goal!");
     }
-
-  }*/
-
-  /**
-  *sets the progress ?
-  */
-  // public static void setProgress(double progress){
-  //
-  //   this.progress = progress;
-  //
-  // }
-  //
-  // /**
-  // *returns expenses
-  // */
-  // public static double getExpenses(){
-  //
-  //   return this.expenses;
-  //
-  // }
-  //
-  // /**
-  // *sets how much was spent
-  // */
-  // public static void setExpenses(double expenses){
-  //
-  //   this.expenses = expenses;
-  //
-  // }
-  //
-  // /**
-  // *sets the amount of money the person has
-  // */
-  // public static void setBalance(double balance){
-  //
-  //   this.balance = balance;
-  // }
-
+    else {
+      System.out.println("You have saved exatcly your desired goal so far, careful with extra spendings!");
+    }
+  }
 }
