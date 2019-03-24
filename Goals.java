@@ -6,16 +6,27 @@ import org.json.JSONArray;
 /**
 *the Goals class shows the currents savings goal, allows the user to set a new savings goal
 */
-public class Goals{
+public class Goals {
 
+  Main main = Main.getMainObject();
+  private JSONObject userData;
   private double savingsGoal;
-  Main main= new Main();
-  private JSONObject userData = main.getJSONObject();//JSON object
+  private static Goals goalsObject = null;
+
+  public static Goals getGoalsObject() {
+      if(goalsObject == null) {
+          goalsObject = new Goals();
+      }
+      return goalsObject;
+  }
 
   /**
   *prompts the user for navigation in goals class
   */
   public void goalsNavigation() {
+    userData = main.getJSONObject();
+    savingsGoal = ((Number)userData.get("savingsGoal")).doubleValue();
+    main.setJSONObject(userData);
     System.out.println("To navigate the Goals tab, use the following commands: ");
     System.out.println("Press 'c' to display your current savings goal");
     System.out.println("Press 'n' to set a new savings goal");
@@ -56,9 +67,7 @@ public class Goals{
       default:
         System.out.print("Invalid option. Please select one of the navigation options.\n");
     }
-
   }
-
   /**
   *returns the goal of money to save
   */
@@ -66,7 +75,6 @@ public class Goals{
     return savingsGoal;
 
   }
-
   /**
   *prompts user to enter a new goal of money to save
   */
@@ -83,12 +91,4 @@ public class Goals{
     main.putJSONObjectIntoFile(userData); //fix this
 
   }
-  // /**
-  // *shows goals page
-  // */
-  // public static void displayGoalsTab(){
-  //   //read from goals array, and print the corresponding goals
-  //   System.out.println("This is the goals tab");
-  //   //System.out.println("Your savings goal is: "+ savingsGoal);
-  // }
 }

@@ -10,9 +10,16 @@ import java.io.FileWriter;
 */
 public class Main {
 
-  Main main = new Main();
-
+  private static Main mainObject = null;
   private JSONObject userData;
+
+  public static Main getMainObject() {
+      if(mainObject == null) {
+          mainObject = new Main();
+      }
+      return mainObject;
+  }
+
   /**
   * checks if the user.json data file exists within the root directory
   */
@@ -54,10 +61,11 @@ public class Main {
       }
     }
 
-    Today today= new Today();
-    Goals goals= new Goals();
-    Expenses expenses= new Expenses();
-
+    Main main = getMainObject();
+    Today today = Today.getTodayObject(); 
+    Goals goals = Goals.getGoalsObject();
+    Expenses expenses = Expenses.getExpObject();
+    
     switch(option) {
       case 't':
         today.todayNavigation();
@@ -96,6 +104,11 @@ public class Main {
     return userData;
   }
 
+  public void setJSONObject(JSONObject newUserData){
+    this.userData = newUserData;
+    putJSONObjectIntoFile(this.userData);
+  }
+
   /**
   * put the userData JSONObject (after updating it and stuff) back into the user.json file
   */
@@ -115,11 +128,16 @@ public class Main {
       error.printStackTrace();
     }
   }
-
+  
   public static void main(String[] args) {
     System.out.print("Welcome to TrackR+\n");
+    Main main = getMainObject();
 
     if(main.userFileExists()) {
+      Expenses expenses = Expenses.getExpObject();
+      JSONObject userData = main.getJSONObjectFromFile(); //added
+      main.putJSONObjectIntoFile(userData);
+      expenses.updateInstanceExpensesArrays();
       main.navigation();
     }
     else {
