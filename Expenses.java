@@ -5,13 +5,17 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
-/**
+import java.io.IOException; 
+/** 
 *the Expenses class allows the user to see the expenses history
 */
-public class Expenses extends Main{
+public class Expenses {
 
-  Main main = new Main();
+  private static Expenses expObject = null;
+  Main main = Main.getMainObject();
+  // read JSON content from the JSON file and create a JSONObject from it (which can be used throughout this class)
+  // private JSONObject userData = main.getJSONObjectFromFile();
+  private JSONObject userData = main.getJSONObject(); //added
 
   private double totalExpenses;
   public ArrayList<Double> expensesList1 = new ArrayList<Double>();
@@ -25,14 +29,49 @@ public class Expenses extends Main{
   public JSONArray expensesListJSON4;
   public JSONArray expensesListJSON5;
 
-  //main main = new main();
-  // read JSON content from the JSON file and create a JSONObject from it (which can be used throughout this class)
-  private JSONObject userData = main.getJSONObjectFromFile();//JSON object
+  public void updateInstanceExpensesArrays() {
+    userData = main.getJSONObject(); //added
+    if((userData.has("expensesArray1"))) {
+        // go over the JSONArrays and get the JSONArrays to update our instance variables
+        for(int j = 1; j < 6; j ++){
+          for (int i = 0; i < ((JSONArray) userData.get("expensesArray" + j)).length(); i++) {
+            if(j == 1) {
+              expensesList1.add(((JSONArray) userData.get("expensesArray" + 1)).getDouble(i));
+            }
+            else if(j == 2) {
+              expensesList2.add(((JSONArray) userData.get("expensesArray" + 2)).getDouble(i));
+            }
+            else if(j == 3) {
+              expensesList3.add(((JSONArray) userData.get("expensesArray" + 3)).getDouble(i));
+            }
+            else if(j == 4) {
+            expensesList4.add(((JSONArray) userData.get("expensesArray" + 4)).getDouble(i));
+            }
+            else if(j == 5) {
+              expensesList5.add(((JSONArray) userData.get("expensesArray" + 5)).getDouble(i));
+            }
+          }
+        }
+    }
+  }
+
+  public void checkArraysCreated() {
+      
+  }
+
+  public static Expenses getExpObject() {
+    if(expObject == null) {
+        expObject = new Expenses();
+    }
+    return expObject;
+  }   
+
   /**
   * create a new key in the JSON file (if it doesn't already exist) which will be used for
   */
   public void createExpensesList(){
     userData = main.getJSONObjectFromFile();
+    updateInstanceExpensesArrays();
     //1
     expensesListJSON1 = new JSONArray(expensesList1); //array list into JSONArray
     // checks if expensesArray key exists
@@ -40,6 +79,7 @@ public class Expenses extends Main{
 
     //2
     expensesListJSON2 = new JSONArray(expensesList2);
+
     userData.put("expensesArray2", expensesListJSON2);
 
     //3
@@ -53,15 +93,16 @@ public class Expenses extends Main{
     //5
     expensesListJSON5 = new JSONArray(expensesList5);
     userData.put("expensesArray5", expensesListJSON5);
-    main.putJSONObjectIntoFile(userData);
+    //main.putJSONObjectIntoFile(userData);
+    main.setJSONObject(userData); //added
   }
 
   /**
   *prompts the user for navigation in the expenses class
   */
   public void expensesNavigation(){
-    userData = main.getJSONObjectFromFile();
-    JSONObject dummyJSONObject = main.getJSONObjectFromFile();
+    userData = main.getJSONObject();
+    JSONObject dummyJSONObject = main.getJSONObject();
     if(!dummyJSONObject.has("expensesArray1") || !dummyJSONObject.has("expensesArray2") || !dummyJSONObject.has("expensesArray3") || !dummyJSONObject.has("expensesArray4") || !dummyJSONObject.has("expensesArray5")) {
       createExpensesList();
     }
@@ -124,10 +165,11 @@ public class Expenses extends Main{
     else {
       System.out.print("Here are all your expenses categorically: " + "\n");
       System.out.print("Education category " +  ((JSONArray) userData.get("expensesArray1")).toString() + "\n");
-      System.out.print("main category " +  ((JSONArray) userData.get("expensesArray2")).toString() + "\n");
+      System.out.print("Home category " +  ((JSONArray) userData.get("expensesArray2")).toString() + "\n");
       System.out.print("Auto and Transportation category " +  ((JSONArray) userData.get("expensesArray3")).toString() + "\n");
       System.out.print("Food and Drinks category " +  ((JSONArray) userData.get("expensesArray4")).toString() + "\n");
       System.out.print("Other category " +  ((JSONArray) userData.get("expensesArray5")).toString() + "\n");
+
       double sum = 0.0;
 
       // go over the JSONArrays and get each element's value and add it to the total sum
@@ -136,8 +178,29 @@ public class Expenses extends Main{
           sum += ((JSONArray) userData.get("expensesArray" + j)).getDouble(i);
         }
       }
+    }
+  }
 
-      System.out.print("Your total expenses are: $" + sum + "\n");
+    public double getTotalExpenses(){
+      double sum = 0.0;
+      userData = main.getJSONObjectFromFile();
+      // convert the Objects returned by userData.get() to  JSONArrays in order to get its length
+      if(((JSONArray) userData.get("expensesArray1")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray2")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray3")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray4")).length() == 0 &&
+      ((JSONArray) userData.get("expensesArray5")).length() == 0) {
+      return sum;
+      }
+      else {
+        //double sum = 0.0;
+        // go over the JSONArrays and get each element's value and add it to the total sum
+        for(int j = 1; j < 6; j ++){
+          for (int i = 0; i < ((JSONArray) userData.get("expensesArray" + j)).length(); i++) {
+            sum += ((JSONArray) userData.get("expensesArray" + j)).getDouble(i);
+        }
+      }
+      return sum;
     }
   }
 }
