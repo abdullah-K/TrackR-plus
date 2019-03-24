@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class Login {
   
-  public static void userLogin(){
+  public void userLogin(){
     try {
       // make new User file (in the root directory)
       File userFile = new File("user.json");
@@ -28,6 +28,7 @@ public class Login {
       System.out.print("Hello, "+ name + ". Please enter your current balance: ");
       double balance = input.nextDouble();
       userData.put("userBalance", balance);
+      userData.put("savingsGoal", 0.0);
 
       // write data (after converting it to a String) to the userFile with fileWriter
       // reference: https://www.tutorialspoint.com/java/io/file_getabsolutefile.htm
