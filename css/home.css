@@ -26,4 +26,8 @@
     -fx-background-color: rgb(46, 134, 202);
 }
 
+.userNameLabel {
+  -fx-font-size: 20;
+  -fx-font-weight: 700;
+}
 
