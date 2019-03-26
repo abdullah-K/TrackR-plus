@@ -8,9 +8,9 @@ import org.json.JSONArray;
 */
 public class Goals {
 
-  Main main = Main.getMainObject();
-  private JSONObject userData;
   private double savingsGoal;
+  Main main = Main.getMainObject();
+  private JSONObject userData = main.getJSONObject();
   private static Goals goalsObject = null;
 
   public static Goals getGoalsObject() {
@@ -24,9 +24,6 @@ public class Goals {
   *prompts the user for navigation in goals class
   */
   public void goalsNavigation() {
-    userData = main.getJSONObject();
-    savingsGoal = ((Number)userData.get("savingsGoal")).doubleValue();
-    main.setJSONObject(userData);
     System.out.println("To navigate the Goals tab, use the following commands: ");
     System.out.println("Press 'c' to display your current savings goal");
     System.out.println("Press 'n' to set a new savings goal");
@@ -92,3 +89,4 @@ public class Goals {
 
   }
 }
+
