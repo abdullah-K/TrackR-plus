@@ -12,7 +12,7 @@ import javafx.scene.chart.PieChart;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.layout.Region;
+// import javafx.scene.layout.Region;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -29,21 +29,31 @@ import javafx.stage.Stage;
 import javafx.scene.text.Text;
 import javafx.scene.control.ProgressBar;
 import java.util.ArrayList;
+import org.json.JSONObject;
 
 public class TodayGUI extends Application {
   private double currentGoal;
   // private double balance;
   private double amount;
-
+  private JSONObject userData;
+  UserData userDataOBJ = UserData.getUserDataObject();
+  Main main = Main.getMainObject();
+  Login login = Login.getLoginObject();
+  
   public static void main(String[] args) {
     launch(args);
   }
 
-  /**
-   * sets the goal
-   */
-  public void setGoals(double goals) {
-    this.currentGoal = goals;
+  public void loginCheck(Stage primaryStage, Scene todayScene) {
+    // NEED TO CHECK IF FILE EXISTS, TO SEE IF WE GO TO LOGIN OR TODAY
+    File userFile = new File("./user.json");// JSON file
+    if (userFile.exists()) {
+      JSONObject userData = userDataOBJ.getJSONObjectFromFile(); // added
+      userDataOBJ.putJSONObjectIntoFile(userData);
+      primaryStage.setScene(todayScene);
+    } else {
+      login(primaryStage, todayScene);
+    }
   }
 
   /**
@@ -52,72 +62,76 @@ public class TodayGUI extends Application {
   public ScrollPane createScrollPane() {
     // https://docs.oracle.com/javafx/2/ui_controls/scrollpane.htm helped
     // maybe have parameter for what category it is, then we can grab the expenses for it
-    ArrayList<Label> heyo= new ArrayList<Label>();
-    for (int i=0; i<40; i++){
-      heyo.add(new Label("asdsad"));
+    ArrayList<Label> heyo = new ArrayList<Label>();
+    double amount = 33.0;
+    for (int i = 0; i < 40; i++) {
+      Label tempLabel = new Label(String.valueOf(amount));
+      heyo.add(tempLabel);
+      amount += 2.5;
+      tempLabel.setStyle("-fx-text-fill: #e6e6e6;");
+      
     }
 
-    
     ScrollPane scrollpane = new ScrollPane();
+    scrollpane.getStyleClass().add("scrollPane");
     VBox textst = new VBox();
     // for (int i=0; i<11;i++)
     // testst.getChildren.add(anexpensesarry.get(i));
 
-    //a bucnh of gibberish right now
-    Text hi = new Text("WASSAP");
-    Text bye = new Text("NO");
-    Text dfad = new Text("SADSADA");
-    
-    for (int i=0; i<heyo.size(); i++){
+    for (int i = 0; i < heyo.size(); i++) {
       textst.getChildren().add(heyo.get(i));
-    }  
+    }
 
-    //textst.getChildren().addAll(hi, bye, dfad);
+    // textst.getChildren().addAll(hi, bye, dfad);
     scrollpane.setMaxWidth(500);
     scrollpane.setMaxHeight(450);
     scrollpane.setContent(textst);
     scrollpane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
     return scrollpane;
-
   }
 
-  public void login(Stage stage) {
+  public void login(Stage stage, Scene today) {
     BorderPane loginRoot = new BorderPane();
     loginRoot.setPadding(new Insets(10, 10, 10, 10));
 
-    //Welcome label
+    // Welcome label
     Label welcomeLabel = new Label("Welcome to TrackR+");
     welcomeLabel.setStyle("-fx-font-size: 30;");
 
-    //Name Label
+    // Name Label
     Label nameLabel = new Label("Username");
     TextField nameInput = new TextField();
     nameInput.setMaxWidth(150);
 
-    //balance Label
+    // balance Label
     Label baLabel = new Label("Balance");
-    //balance Input
+    // balance Input
     TextField baInput = new TextField();
     baInput.setMaxWidth(150);
 
-    //Button to login
+    // Button to login
     Button loginButton = new Button("Log In");
     loginButton.setAlignment(Pos.CENTER_LEFT);
 
-    //Vbox that has all the labels, textfields and buttons in 
+    // Vbox that has all the labels, textfields and buttons in
     VBox centerRoot = new VBox();
     centerRoot.setAlignment(Pos.CENTER);
     centerRoot.setSpacing(10);
-    centerRoot.getChildren().addAll(nameLabel,nameInput,baLabel,baInput,loginButton);
+    centerRoot.getChildren().addAll(nameLabel, nameInput, baLabel, baInput, loginButton);
 
-    //events for when the user clicks the log in button
+    // events for when the user clicks the log in button
     loginButton.setOnAction(new EventHandler<ActionEvent>() {
-    public void handle(ActionEvent e) {
-        String name = nameInput.getText(); //GET USERNAME AND PUT IN JSON TOO
+      public void handle(ActionEvent e) {
+        String name = nameInput.getText(); // GET USERNAME AND PUT IN JSON TOO
         double balance = Double.parseDouble(baInput.getText());// GET BALANCE AND PUT IN JSON TOO
-        //GOES TO TODAY SCREEN AFTER
-        todayLaunch(stage);
-        }
+        Login login = new Login();
+        login.userLoginGUI(name, balance);
+        // userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
+        
+        // GOES TO TODAY SCREEN AFTER
+        updateDataAfterLogin();
+        stage.setScene(today);
+      }
     });
 
     loginRoot.setTop(welcomeLabel);
@@ -128,8 +142,75 @@ public class TodayGUI extends Application {
     stage.setScene(loginScene);
     stage.show();
   }
+  private void updateDataAfterLogin() {
+    if(main.userFileExists()){
+      userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
+    }
+  else {
+      userDataOBJ.setJSONObject(login.getUserData());
+    }
+  }
 
-  public void goalsLaunch(Stage stage){
+  @Override
+  public void start(Stage primaryStage) {
+    // TODAY_______________________________________________________________________________________
+    BorderPane todayRoot = new BorderPane();
+    HBox todayHbox = new HBox();
+    todayHbox.setSpacing(145);
+    todayRoot.setPadding(new Insets(10, 10, 10, 1));
+    Scene todayScene = new Scene(todayHbox, 1000, 600);
+    loginCheck(primaryStage, todayScene);
+    System.out.println("continuing");
+    // updateDataAfterLogin();
+    // userData = userDataOBJ.getJSONObject();
+    //UserData userData = UserData.getUserDataObject();
+    //JSONObject userDataJSON = userData.getJSONObjectFromFile(); // added
+    //userData.putJSONObjectIntoFile(userDataJSON);
+    // UserData userData = UserData.getUserDataObject();
+    // userData = newUserData();
+    // userData = main.getJSONObjectFromFile(); //added
+
+    // if(main.userFileExists()){
+    //   userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
+    // }
+    // else {
+    //   userDataOBJ.setJSONObject(login.getUserData());
+    // }
+    // Buttons for the Navigation bar
+    Button today = new Button("Today");
+    Button goals = new Button("Goals");
+    Button expenses = new Button("Expenses");
+    Button exit = new Button("Exit");
+
+    // Label userNameLabel = new Label("Hello, Guest");
+    // Labels for the username
+    // if(main.userFileExists()) {
+
+    Label  userNameLabel = new Label("Hello, " +  userDataOBJ.getUsername());
+    // }
+    // Label userNameLabel = new Label("Hello, " +  userDataOBJ.getUsername());
+    userNameLabel.setPadding(new Insets(15, 0, 25, 0));
+    userNameLabel.getStyleClass().add("userNameLabel");
+    userNameLabel.getStylesheets().add("css/home.css");
+
+    // TrackR+ Logo
+    Image logoImage = new Image("public/trackr-plus_logo.png", true);
+    ImageView imageView = new ImageView(logoImage);
+    Label imgLabel = new Label();
+    imageView.setFitWidth(125);
+    imageView.setFitHeight(125);
+    imgLabel.setGraphic(imageView);
+    imgLabel.setTranslateY(175);
+
+    // Navigation Bar for the Today scene
+    VBox navigationBarToday = new VBox(userNameLabel, today, goals, expenses, exit, imgLabel);
+    navigationBarToday.setAlignment(Pos.TOP_CENTER);
+    navigationBarToday.getStyleClass().add("navigationPanel");
+    navigationBarToday.getStylesheets().add("css/home.css");
+    navigationBarToday.setSpacing(2);
+
+    // GOALS
+    // TAB_______________________________________________________________________________________
     BorderPane goalsRoot = new BorderPane();
     HBox goalsHbox = new HBox();
     goalsHbox.setSpacing(208);
@@ -139,36 +220,38 @@ public class TodayGUI extends Application {
     goalsVbox.setSpacing(10);
     goalsVbox.setAlignment(Pos.CENTER);
 
-    //text field to enter amount to save
-    TextField setInput = new TextField("Enter an amount..."); 
+    // text field to enter amount to save
+    TextField setInput = new TextField("Enter an amount...");
     setInput.setMaxWidth(145);
     Button setGoalButton = new Button("Set a new savings goal");
     goalsVbox.getChildren().addAll(setInput, setGoalButton);
 
-    //displays current savings goal
-    Label currentGoal = new Label("Your current savings goal is: $"); //+ userData.getSavingsGoal());// get from JSON file
+    // displays current savings goal
+    Label currentGoal = new Label("Your current savings goal is: $" + userDataOBJ.getSavingsGoal());// get from JSON file
     Label goalsProgress = new Label("This is your savings goal progress");
     currentGoal.setStyle("-fx-font-size: 25;");
     goalsProgress.setStyle("-fx-font-size: 20;");
 
-    //Progress Bar for the Goals Tab 
+    // Progress Bar for the Goals Tab
     ProgressBar goalsProgressBar = new ProgressBar(0);
     goalsProgressBar.setMinHeight(15);
-    goalsProgressBar.setMinWidth(200);
-    //goalsProgressBar.setProgress(userData.getProgress());
+    goalsProgressBar.setMinWidth(250);
+    // if(userData.has("expensesArray1")){
+    goalsProgressBar.setProgress(userDataOBJ.getProgress());
+    // }
 
-    //Top VBox for current goal and goals progress labels
+    // Top VBox for current goal and goals progress labels
     VBox goalsTop = new VBox();
     goalsTop.setPadding(new Insets(10, 10, 10, 10));
-    goalsTop.getChildren().addAll(currentGoal,goalsProgress,goalsProgressBar);
+    goalsTop.getChildren().addAll(currentGoal, goalsProgress, goalsProgressBar);
     goalsTop.setSpacing(10);
     goalsTop.setAlignment(Pos.CENTER);
 
     setGoalButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
-        double goal = Double.parseDouble(setInput.getText());//send to JSON file 
-        //goalsProgressBar.setProgress(userData.getProgress());
-        currentGoal.setText("Your current savings goal is: $"); //+ userData.getSavingsGoal()); //might be redundant
+        double goal = Double.parseDouble(setInput.getText());// send to JSON file
+        // goalsProgressBar.setProgress(userData.getProgress());
+        currentGoal.setText("Your current savings goal is: $" + userDataOBJ.getSavingsGoal()); // might be redundant
       }
     });
 
@@ -181,24 +264,7 @@ public class TodayGUI extends Application {
     Button expenses1 = new Button("Expenses");
     Button exit1 = new Button("Exit");
 
-    today1.setOnAction(event -> {
-      todayLaunch(stage);;
-    });
-
-    goals1.setOnAction(event -> {
-      stage.setScene(goalsScene);
-    });
-
-    expenses1.setOnAction(event -> {
-      expensesLaunch(stage);;
-    });
-
-    exit1.setOnAction(event -> {
-      System.exit(0);
-    });
-    
-    //TrackR+ Logo
-    Image logoImage = new Image("public/trackr-plus_logo.png", true);
+    // TrackR+ Logo
     ImageView imageView2 = new ImageView(logoImage);
     imageView2.setFitWidth(125);
     imageView2.setFitHeight(125);
@@ -206,7 +272,7 @@ public class TodayGUI extends Application {
     imgLabel2.setGraphic(imageView2);
     imgLabel2.setTranslateY(235);
 
-    //Navigation bar for the Goals tab
+    // Navigation bar for the Goals tab
     VBox navigationBarGoals = new VBox(today1, goals1, expenses1, exit1, imgLabel2);
     navigationBarGoals.setAlignment(Pos.TOP_CENTER);
     navigationBarGoals.getStyleClass().add("navigationPanel");
@@ -215,10 +281,9 @@ public class TodayGUI extends Application {
 
     goalsHbox.getChildren().addAll(navigationBarGoals, goalsRoot);
     goalsScene.getStylesheets().add("css/Today.css");
-    stage.setScene(goalsScene);
-  }
+    // ______________________________________________________________________________________________
 
-  public void expensesLaunch(Stage stage){
+    // EXPENSES_______________________________________________________________________________________
     BorderPane expensesRoot = new BorderPane();
     HBox expensesHbox = new HBox();
     expensesHbox.setSpacing(240);
@@ -229,20 +294,19 @@ public class TodayGUI extends Application {
     VBox topPane = new VBox();
     Label info, totalExpensesNum;
 
-    //Here need to add the method which can return the expenses
+    // Here need to add the method which can return the expenses
 
-    //label which dispalys the total money spent
+    // label which dispalys the total money spent
     info = new Label("Your total expenses are:"); // get the expenses of everything
     info.setStyle("-fx-font-size: 25;");
 
-    //label which displays the username
-    totalExpensesNum = new Label("$"); 
+    // label which displays the username
+    totalExpensesNum = new Label("$" + userDataOBJ.getTotalExpenses());
     totalExpensesNum.setStyle("-fx-font-size: 20;");
 
     topPane.setPadding(new Insets(10, 10, 10, 10));
-    topPane.getChildren().addAll(info,totalExpensesNum);
+    topPane.getChildren().addAll(info, totalExpensesNum);
     topPane.setAlignment(Pos.CENTER);
-
 
     // ________________Set Buttons (history & back)________________
     HBox buttonsPane = new HBox();
@@ -280,10 +344,10 @@ public class TodayGUI extends Application {
     // create a new scene for education expenses
     Scene eduScene = new Scene(eduLabelRoot, 1000, 600);
     eduScene.getStylesheets().add("css/Today.css");
-    eduButton.setOnAction(e -> stage.setScene(eduScene));
+    eduButton.setOnAction(e -> primaryStage.setScene(eduScene));
 
     // Changes the scene to the expenses tab, if the back button is pressed
-    eduBackButton.setOnAction(e -> stage.setScene(expensesScene));
+    eduBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // ___FOOD__
     // label root for food category
@@ -300,10 +364,10 @@ public class TodayGUI extends Application {
     foodScene.getStylesheets().add("css/Today.css");
 
     // Changes the scene to the food screen, if the button is pressed
-    foodButton.setOnAction(e -> stage.setScene(foodScene));
+    foodButton.setOnAction(e -> primaryStage.setScene(foodScene));
 
     // Changes the scene to the expenses tab, if the back button is pressed
-    foodBackButton.setOnAction(e -> stage.setScene(expensesScene));
+    foodBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // ___House___
     // label root for home
@@ -320,10 +384,10 @@ public class TodayGUI extends Application {
     homeScene.getStylesheets().add("css/Today.css");
 
     // Changes the scene to the home screen, if the button is pressed
-    homeButton.setOnAction(e -> stage.setScene(homeScene));
+    homeButton.setOnAction(e -> primaryStage.setScene(homeScene));
 
     // Changes the scene to the main expenses, if the back button is pressed
-    homeBackButton.setOnAction(e -> stage.setScene(expensesScene));
+    homeBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // ___Others___
     // label root for others
@@ -340,10 +404,10 @@ public class TodayGUI extends Application {
     othersScene.getStylesheets().add("css/Today.css");
 
     // Changes the scene to the home screen, if the button is pressed
-    othersButton.setOnAction(e -> stage.setScene(othersScene));
+    othersButton.setOnAction(e -> primaryStage.setScene(othersScene));
 
     // Changes the scene to the main expenses, if the back button is pressed
-    othersBackButton.setOnAction(e -> stage.setScene(expensesScene));
+    othersBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // label root for auto and tansportation
     VBox autoLabelRoot = new VBox();
@@ -359,42 +423,25 @@ public class TodayGUI extends Application {
     autoScene.getStylesheets().add("css/Today.css");
 
     // Changes the scene to the other screen, if the button is pressed
-    autoButton.setOnAction(e -> stage.setScene(autoScene));
+    autoButton.setOnAction(e -> primaryStage.setScene(autoScene));
 
     // Changes the scene to the main expenses, if the back button is pressed
-    autoBackButton.setOnAction(e -> stage.setScene(expensesScene));
+    autoBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     Button today2 = new Button("Today");
     Button goals2 = new Button("Goals");
     Button expenses2 = new Button("Expenses");
     Button exit2 = new Button("Exit");
 
-    goals2.setOnAction(event -> {
-      goalsLaunch(stage);
-    });
-
-    today2.setOnAction(event -> {
-      todayLaunch(stage);
-    });
-
-    expenses2.setOnAction(event -> {
-      stage.setScene(expensesScene);
-    });
-
-    exit2.setOnAction(event -> {
-      System.exit(0);
-    });
-
-    //TrackR+ Logo 
+    // TrackR+ Logo
     Label imgLabel3 = new Label();
-    Image logoImage = new Image("public/trackr-plus_logo.png", true);
     ImageView imageView3 = new ImageView(logoImage);
     imageView3.setFitWidth(125);
     imageView3.setFitHeight(125);
     imgLabel3.setGraphic(imageView3);
     imgLabel3.setTranslateY(235);
 
-    //Navigation bar for the expenses tab
+    // Navigation bar for the expenses tab
     VBox navigationBarExp = new VBox(today2, goals2, expenses2, exit2, imgLabel3);
     navigationBarExp.setAlignment(Pos.TOP_CENTER);
     navigationBarExp.getStyleClass().add("navigationPanel");
@@ -407,52 +454,15 @@ public class TodayGUI extends Application {
     expensesRoot.setCenter(categoryBox);
     expensesHbox.getChildren().addAll(navigationBarExp, expensesRoot);
     expensesScene.getStylesheets().add("css/Today.css");
-    stage.setScene(expensesScene);
-  }
 
-  public void todayLaunch(Stage stage){
-    //UserData userData = UserData.getUserDataObject();
-
-    //Buttons for the Navigation bar
-    Button today = new Button("Today");
-    Button goals = new Button("Goals");
-    Button expenses = new Button("Expenses");
-    Button exit = new Button("Exit");
-
-    //Labels for the username
-    Label userNameLabel = new Label("Hello, "); //+ userData.getUsername());
-    userNameLabel.setPadding(new Insets(15, 0, 25, 0));
-    userNameLabel.getStyleClass().add("userNameLabel");
-    userNameLabel.getStylesheets().add("css/home.css");
-
-    //TrackR+ Logo
-    Image logoImage = new Image("public/trackr-plus_logo.png", true);
-    ImageView imageView = new ImageView(logoImage);
-    Label imgLabel = new Label();
-    imageView.setFitWidth(125);
-    imageView.setFitHeight(125);
-    imgLabel.setGraphic(imageView);
-    imgLabel.setTranslateY(175);
-
-    //Navigation Bar for the Today scene
-    VBox navigationBarToday = new VBox(userNameLabel, today, goals, expenses, exit, imgLabel);
-    navigationBarToday.setAlignment(Pos.TOP_CENTER);
-    navigationBarToday.getStyleClass().add("navigationPanel");
-    navigationBarToday.getStylesheets().add("css/home.css");
-    navigationBarToday.setSpacing(2);
-
-    BorderPane todayRoot = new BorderPane();
-    HBox todayHbox = new HBox();
-    todayHbox.setSpacing(145);
-    todayRoot.setPadding(new Insets(10, 10, 10, 1));
-    Scene todayScene = new Scene(todayHbox, 1000, 600);
+    // ___________________________________________________________________________________________
 
     // Creates labels for balance and savings goal
     VBox labelRoot = new VBox();
-    //Label acBalance = new Label("Your current balance is: $" + userData.getBalance()); // get the balance from JSON
-    //Label acGoal = new Label("Your current savings goal is: $" + userData.getSavingsGoal()); // get the goal from JSON
+    Label acBalance = new Label("Your current balance is: $" + userDataOBJ.getBalance()); // get the balance from JSON
+    Label acGoal = new Label("Your current savings goal is: $" + userDataOBJ.getSavingsGoal()); // get the goal from JSON
     labelRoot.setAlignment(Pos.CENTER);
-    //labelRoot.getChildren().addAll(acBalance, acGoal);
+    labelRoot.getChildren().addAll(acBalance, acGoal);
 
     // Three buttons for the bottom, including deposit and spend, and back(optional)
     HBox buttonsRoot = new HBox();
@@ -502,9 +512,9 @@ public class TodayGUI extends Application {
     Scene depositScene = new Scene(depositRoot, 1000, 600);
     depositScene.getStylesheets().add("css/Today.css");
     // Changes the scene to the deposit screen, if the button is pressed
-    depositButton.setOnAction(e -> stage.setScene(depositScene));
+    depositButton.setOnAction(e -> primaryStage.setScene(depositScene));
     // Changes the scene to the main Today tab, if the back button is pressed
-    depositBackButton.setOnAction(e -> stage.setScene(todayScene));
+    depositBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
 
     // Spend scene labels and spend text field
     VBox spendLabelRoot = new VBox();
@@ -548,9 +558,9 @@ public class TodayGUI extends Application {
     Scene spendScene = new Scene(spendRoot, 1000, 600);
     spendScene.getStylesheets().add("css/Today.css");
     // Changes the scene to the spend screen, if the button is pressed
-    spendButton.setOnAction(e -> stage.setScene(spendScene));
+    spendButton.setOnAction(e -> primaryStage.setScene(spendScene));
     // Changes the scene to the main Today tab, if the back button is pressed
-    spendBackButton.setOnAction(e -> stage.setScene(todayScene));
+    spendBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
 
     // Pie chart for each spending category, to the right of it the labels
     ObservableList<PieChart.Data> expensesData = FXCollections.observableArrayList(new PieChart.Data("Education", 400),
@@ -581,24 +591,58 @@ public class TodayGUI extends Application {
     // Sidebar navigation panel, event handlers for each button
 
     today.setOnAction(event -> {
-      stage.setScene(todayScene);
+      primaryStage.setScene(todayScene);
     });
 
-    //Changes the scene to the Goals tab
+    today1.setOnAction(event -> {
+      primaryStage.setScene(todayScene);
+    });
+
+    today2.setOnAction(event -> {
+      primaryStage.setScene(todayScene);
+    });
+
+    // Changes the scene to the Goals tab
     goals.setOnAction(event -> {
-      goalsLaunch(stage);;
+      primaryStage.setScene(goalsScene);
     });
 
-    //Changes the scene to the expenses tab
+    goals1.setOnAction(event -> {
+      primaryStage.setScene(goalsScene);
+    });
+
+    goals2.setOnAction(event -> {
+      primaryStage.setScene(goalsScene);
+    });
+
+    // Changes the scene to the expenses tab
     expenses.setOnAction(event -> {
-      expensesLaunch(stage);;
+      primaryStage.setScene(expensesScene);
 
     });
 
-    //Adds an event handler that exits the program, when the user clicks 'exit'
-    exit.setOnAction(event ->{
-            System.exit(0);
+    expenses1.setOnAction(event -> {
+      primaryStage.setScene(expensesScene);
     });
+
+    expenses2.setOnAction(event -> {
+      primaryStage.setScene(expensesScene);
+    });
+
+    // Adds an event handler that exits the program, when the user clicks 'exit'
+    exit.setOnAction(event -> {
+      System.exit(0);
+    });
+
+    exit1.setOnAction(event -> {
+      System.exit(0);
+    });
+
+    exit2.setOnAction(event -> {
+      System.exit(0);
+    });
+
+    // ___________________________________________________________________________________
 
     // Display the stage with the main scene
     todayRoot.setTop(labelRoot);
@@ -606,39 +650,12 @@ public class TodayGUI extends Application {
     todayRoot.setBottom(buttonsRoot);
     todayHbox.getChildren().addAll(navigationBarToday, todayRoot);
     todayScene.getStylesheets().add("css/Today.css");
-    stage.setResizable(false);
-    stage.setTitle("TrackR+");
-    stage.getIcons().add(new Image("file:public/trackr-plus_logo.png"));
-    stage.setScene(todayScene);
-
-  }
-
-  @Override
-  public void start(Stage primaryStage) {
-
-    
-    // GOALS TAB_______________________________________________________________________________________
-    
-    // ______________________________________________________________________________________________
-
-    // EXPENSES_______________________________________________________________________________________
-    
-
-    // ___________________________________________________________________________________________
-
-    // TODAY_______________________________________________________________________________________
-    
-    // ___________________________________________________________________________________
-
-    //NEED TO CHECK IF FILE EXISTS, TO SEE IF WE GO TO LOGIN OR TODAY
-    File userFile = new File("./user.json");//JSON file
-    if (userFile.exists()){
-      todayLaunch(primaryStage);;
-    }else{
-      login(primaryStage);
-    }
+    primaryStage.setResizable(false);
+    primaryStage.setTitle("TrackR+");
+    primaryStage.getIcons().add(new Image("file:public/trackr-plus_logo.png"));
 
     primaryStage.show();
   }
 
 }
+
