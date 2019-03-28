@@ -127,7 +127,8 @@ public class UserData {
             return 0.7;
         } else {
             double totalExpenses = expenses.getTotalExpenses(); // interpretation of progress
-            double savingsGoal = (Double) userData.get("savingsGoal");
+            // double savingsGoal = (Double) userData.get("savingsGoal");
+            double savingsGoal = ((Number)userData.get("savingsGoal")).doubleValue();
             progress = savingsGoal / totalExpenses;
             if (progress >= 1.0) {
                 return 1.0;
