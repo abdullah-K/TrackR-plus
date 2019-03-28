@@ -13,7 +13,7 @@ to compile:
 `javac -cp .:lib/java-json.jar *.java`
 
 to execute:
-`java -cp .:lib/java-json.jar Home`
+`java -cp .:lib/java-json.jar Main`
 
 ## Running GUI-based version 
 to compile: 
