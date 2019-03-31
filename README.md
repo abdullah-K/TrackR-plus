@@ -21,3 +21,5 @@ to compile:
 
 to execute:
 `java -cp .:lib/java-json.jar:lib/jfxrt.jar TodayGUI`
+
+**important**: replace the `:` with `;` in the commands above if running on Windows
