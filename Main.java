@@ -128,7 +128,17 @@ public class Main {
       error.printStackTrace();
     }
   }
-  
+
+  // public void start() {
+  //   Main main = getMainObject();
+  //   if(main.userFileExists()) {
+  //     Expenses expenses = Expenses.getExpObject();
+  //     JSONObject userData = main.getJSONObjectFromFile(); //added
+  //     main.putJSONObjectIntoFile(userData);
+  //     expenses.updateInstanceExpensesArrays();
+  //     // main.navigation();
+  //   }
+  // }
   public static void main(String[] args) {
     System.out.print("Welcome to TrackR+\n");
     Main main = getMainObject();
@@ -147,3 +157,4 @@ public class Main {
     }
   }
 }
+

@@ -12,6 +12,40 @@
 .default-color3.chart-pie { -fx-pie-color: #FF687E; }
 .default-color4.chart-pie { -fx-pie-color: #8F7AD8; }
 
+.scrollPane  > .viewport {
+    -fx-border-radius: 10;
+    -fx-background-color: #424252; 
+    -fx-border: none;   
+}
+/* darker bg color for every odd element - doesn't work*/
+/* .scrollPane:nth-child(odd) .viewport:nth-child(odd) {
+    -fx-background-color: #c4c4c4;
+} */
+.scroll-bar{
+    -fx-background-color: #2a2a33;
+    -fx-background-radius: 2em;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #30A4FB;
+    -fx-background-insets: 0 4 0 4;
+    -fx-background-radius: 2em;
+}
+.scroll-bar:horizontal .thumb:pressed,
+.scroll-bar:vertical .thumb:pressed {
+ -fx-background-color: rgb(46, 134, 202);
+}
+.scroll-bar:vertical .increment-arrow {
+    -fx-background-color: #30A4FB;
+    -fx-shape: "M 0 0 L 4 8 L 8 0 Z";
+    -fx-padding: 0.25em;
+    -fx-rotate: 0;
+}
+.scroll-bar:vertical .decrement-arrow {
+    -fx-background-color: #30A4FB;
+    -fx-shape: "M 0 0 L 4 8 L 8 0 Z";
+    -fx-padding: 0.25em;
+    -fx-rotate: 180;
+}   
 .chart-pie-label-line {
     -fx-stroke: #FFFFFF;
     -fx-fill: #FFFFFF;
@@ -40,4 +74,7 @@
 }
 .button:pressed {
     -fx-background-color: rgb(46, 134, 202);
+}
+.progress-bar {
+    -fx-accent: #2DE5A6;
 }
