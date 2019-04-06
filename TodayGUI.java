@@ -36,10 +36,10 @@ public class TodayGUI extends Application {
   // private double balance;
   private double amount;
   private JSONObject userData;
-  UserData userDataOBJ = UserData.getUserDataObject();
-  Main main = Main.getMainObject();
-  Login login = Login.getLoginObject();
-  
+  // UserData userDataOBJ = UserData.getUserDataObject();
+  // Main main = Main.getMainObject();
+  // Login login = Login.getLoginObject();
+
   public static void main(String[] args) {
     launch(args);
   }
@@ -48,8 +48,8 @@ public class TodayGUI extends Application {
     // NEED TO CHECK IF FILE EXISTS, TO SEE IF WE GO TO LOGIN OR TODAY
     File userFile = new File("./user.json");// JSON file
     if (userFile.exists()) {
-      JSONObject userData = userDataOBJ.getJSONObjectFromFile(); // added
-      userDataOBJ.putJSONObjectIntoFile(userData);
+      // JSONObject userData = userDataOBJ.getJSONObjectFromFile(); 
+      // userDataOBJ.putJSONObjectIntoFile(userData);
       primaryStage.setScene(todayScene);
     } else {
       login(primaryStage, todayScene);
@@ -61,7 +61,8 @@ public class TodayGUI extends Application {
    */
   public ScrollPane createScrollPane() {
     // https://docs.oracle.com/javafx/2/ui_controls/scrollpane.htm helped
-    // maybe have parameter for what category it is, then we can grab the expenses for it
+    // maybe have parameter for what category it is, then we can grab the expenses
+    // for it
     ArrayList<Label> heyo = new ArrayList<Label>();
     double amount = 33.0;
     for (int i = 0; i < 40; i++) {
@@ -69,7 +70,7 @@ public class TodayGUI extends Application {
       heyo.add(tempLabel);
       amount += 2.5;
       tempLabel.setStyle("-fx-text-fill: #e6e6e6;");
-      
+
     }
 
     ScrollPane scrollpane = new ScrollPane();
@@ -127,9 +128,9 @@ public class TodayGUI extends Application {
         Login login = new Login();
         login.userLoginGUI(name, balance);
         // userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
-        
+
         // GOES TO TODAY SCREEN AFTER
-        updateDataAfterLogin();
+        //updateDataAfterLogin();
         stage.setScene(today);
       }
     });
@@ -142,14 +143,14 @@ public class TodayGUI extends Application {
     stage.setScene(loginScene);
     stage.show();
   }
-  private void updateDataAfterLogin() {
-    if(main.userFileExists()){
-      userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
-    }
-  else {
-      userDataOBJ.setJSONObject(login.getUserData());
-    }
-  }
+
+  // private void updateDataAfterLogin() {
+  //   if (main.userFileExists()) {
+  //     userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
+  //   } else {
+  //     userDataOBJ.setJSONObject(login.getUserData());
+  //   }
+  // }
 
   @Override
   public void start(Stage primaryStage) {
@@ -163,18 +164,18 @@ public class TodayGUI extends Application {
     System.out.println("continuing");
     // updateDataAfterLogin();
     // userData = userDataOBJ.getJSONObject();
-    //UserData userData = UserData.getUserDataObject();
-    //JSONObject userDataJSON = userData.getJSONObjectFromFile(); // added
-    //userData.putJSONObjectIntoFile(userDataJSON);
+    // UserData userData = UserData.getUserDataObject();
+    // JSONObject userDataJSON = userData.getJSONObjectFromFile(); // added
+    // userData.putJSONObjectIntoFile(userDataJSON);
     // UserData userData = UserData.getUserDataObject();
     // userData = newUserData();
     // userData = main.getJSONObjectFromFile(); //added
 
     // if(main.userFileExists()){
-    //   userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
+    // userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
     // }
     // else {
-    //   userDataOBJ.setJSONObject(login.getUserData());
+    // userDataOBJ.setJSONObject(login.getUserData());
     // }
     // Buttons for the Navigation bar
     Button today = new Button("Today");
@@ -186,9 +187,9 @@ public class TodayGUI extends Application {
     // Labels for the username
     // if(main.userFileExists()) {
 
-    Label  userNameLabel = new Label("Hello, " +  userDataOBJ.getUsername());
+    //Label userNameLabel = new Label("Hello, " + userDataOBJ.getUsername());
     // }
-    // Label userNameLabel = new Label("Hello, " +  userDataOBJ.getUsername());
+     Label userNameLabel = new Label("Hello, " );
     userNameLabel.setPadding(new Insets(15, 0, 25, 0));
     userNameLabel.getStyleClass().add("userNameLabel");
     userNameLabel.getStylesheets().add("css/home.css");
@@ -227,7 +228,8 @@ public class TodayGUI extends Application {
     goalsVbox.getChildren().addAll(setInput, setGoalButton);
 
     // displays current savings goal
-    Label currentGoal = new Label("Your current savings goal is: $" + userDataOBJ.getSavingsGoal());// get from JSON file
+    Label currentGoal = new Label("Your current savings goal is: $" );// get from JSON
+                                                                                                    // file
     Label goalsProgress = new Label("This is your savings goal progress");
     currentGoal.setStyle("-fx-font-size: 25;");
     goalsProgress.setStyle("-fx-font-size: 20;");
@@ -237,7 +239,7 @@ public class TodayGUI extends Application {
     goalsProgressBar.setMinHeight(15);
     goalsProgressBar.setMinWidth(250);
     // if(userData.has("expensesArray1")){
-    goalsProgressBar.setProgress(userDataOBJ.getProgress());
+    //goalsProgressBar.setProgress(userDataOBJ.getProgress());
     // }
 
     // Top VBox for current goal and goals progress labels
@@ -251,7 +253,7 @@ public class TodayGUI extends Application {
       public void handle(ActionEvent e) {
         double goal = Double.parseDouble(setInput.getText());// send to JSON file
         // goalsProgressBar.setProgress(userData.getProgress());
-        currentGoal.setText("Your current savings goal is: $" + userDataOBJ.getSavingsGoal()); // might be redundant
+        currentGoal.setText("Your current savings goal is: $"); // might be redundant
       }
     });
 
@@ -301,7 +303,7 @@ public class TodayGUI extends Application {
     info.setStyle("-fx-font-size: 25;");
 
     // label which displays the username
-    totalExpensesNum = new Label("$" + userDataOBJ.getTotalExpenses());
+    totalExpensesNum = new Label("$");
     totalExpensesNum.setStyle("-fx-font-size: 20;");
 
     topPane.setPadding(new Insets(10, 10, 10, 10));
@@ -459,8 +461,9 @@ public class TodayGUI extends Application {
 
     // Creates labels for balance and savings goal
     VBox labelRoot = new VBox();
-    Label acBalance = new Label("Your current balance is: $" + userDataOBJ.getBalance()); // get the balance from JSON
-    Label acGoal = new Label("Your current savings goal is: $" + userDataOBJ.getSavingsGoal()); // get the goal from JSON
+    Label acBalance = new Label("Your current balance is: $" ); // get the balance from JSON
+    Label acGoal = new Label("Your current savings goal is: $" ); // get the goal from
+                                                                                                // JSON
     labelRoot.setAlignment(Pos.CENTER);
     labelRoot.getChildren().addAll(acBalance, acGoal);
 
@@ -658,4 +661,3 @@ public class TodayGUI extends Application {
   }
 
 }
-
