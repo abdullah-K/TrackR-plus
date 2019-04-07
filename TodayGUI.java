@@ -12,7 +12,6 @@ import javafx.scene.chart.PieChart;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-// import javafx.scene.layout.Region;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -30,15 +29,14 @@ import javafx.scene.text.Text;
 import javafx.scene.control.ProgressBar;
 import java.util.ArrayList;
 import org.json.JSONObject;
+import java.io.*;
 
 public class TodayGUI extends Application {
-  private double currentGoal;
-  // private double balance;
-  private double amount;
-  private JSONObject userData;
-  // UserData userDataOBJ = UserData.getUserDataObject();
-  // Main main = Main.getMainObject();
-  // Login login = Login.getLoginObject();
+
+  private UserAttributes user;
+  private Label userNameLabel;
+  private Label accBalanceLabel;
+  private Label accGoalsLabel;
 
   public static void main(String[] args) {
     launch(args);
@@ -46,12 +44,19 @@ public class TodayGUI extends Application {
 
   public void loginCheck(Stage primaryStage, Scene todayScene) {
     // NEED TO CHECK IF FILE EXISTS, TO SEE IF WE GO TO LOGIN OR TODAY
-    File userFile = new File("./user.json");// JSON file
+    userNameLabel = new Label("Hello");
+    accBalanceLabel = new Label("Your current balance is $0.0");
+    accGoalsLabel = new Label("Your current savings goal is $0.0");
+    File userFile = new File("./user.json");
     if (userFile.exists()) {
-      // JSONObject userData = userDataOBJ.getJSONObjectFromFile(); 
-      // userDataOBJ.putJSONObjectIntoFile(userData);
+      user = new UserAttributes("./user.json");
+      userNameLabel.setText("Hello, " + user.getUserName());
+      accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
+      accGoalsLabel.setText("Your current savings goal is $" + user.getSavingsGoal());
       primaryStage.setScene(todayScene);
+
     } else {
+      user = new UserAttributes();
       login(primaryStage, todayScene);
     }
   }
@@ -62,7 +67,6 @@ public class TodayGUI extends Application {
   public ScrollPane createScrollPane() {
     // https://docs.oracle.com/javafx/2/ui_controls/scrollpane.htm helped
     // maybe have parameter for what category it is, then we can grab the expenses
-    // for it
     ArrayList<Label> heyo = new ArrayList<Label>();
     double amount = 33.0;
     for (int i = 0; i < 40; i++) {
@@ -76,8 +80,6 @@ public class TodayGUI extends Application {
     ScrollPane scrollpane = new ScrollPane();
     scrollpane.getStyleClass().add("scrollPane");
     VBox textst = new VBox();
-    // for (int i=0; i<11;i++)
-    // testst.getChildren.add(anexpensesarry.get(i));
 
     for (int i = 0; i < heyo.size(); i++) {
       textst.getChildren().add(heyo.get(i));
@@ -91,7 +93,12 @@ public class TodayGUI extends Application {
     return scrollpane;
   }
 
+  /**
+   * login scene
+   */
   public void login(Stage stage, Scene today) {
+    Login login = new Login();
+
     BorderPane loginRoot = new BorderPane();
     loginRoot.setPadding(new Insets(10, 10, 10, 10));
 
@@ -123,15 +130,18 @@ public class TodayGUI extends Application {
     // events for when the user clicks the log in button
     loginButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
-        String name = nameInput.getText(); // GET USERNAME AND PUT IN JSON TOO
-        double balance = Double.parseDouble(baInput.getText());// GET BALANCE AND PUT IN JSON TOO
-        Login login = new Login();
-        login.userLoginGUI(name, balance);
-        // userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
-
-        // GOES TO TODAY SCREEN AFTER
-        //updateDataAfterLogin();
+        String name = nameInput.getText();
+        double balance = Double.parseDouble(baInput.getText());
+        double goal = 0.0;
+        user.setUserName(name);
+        user.setUserBalance(balance);
+        user.setSavingsGoal(goal);
+        userNameLabel.setText("Hello, " + user.getUserName());
+        accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
+        accGoalsLabel.setText("Your current savings goal is $" + user.getSavingsGoal());
         stage.setScene(today);
+        login.userLoginGUI(name, balance, goal);
+        user.inflowArray.add(user.getUserBalance());
       }
     });
 
@@ -144,14 +154,6 @@ public class TodayGUI extends Application {
     stage.show();
   }
 
-  // private void updateDataAfterLogin() {
-  //   if (main.userFileExists()) {
-  //     userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
-  //   } else {
-  //     userDataOBJ.setJSONObject(login.getUserData());
-  //   }
-  // }
-
   @Override
   public void start(Stage primaryStage) {
     // TODAY_______________________________________________________________________________________
@@ -161,35 +163,14 @@ public class TodayGUI extends Application {
     todayRoot.setPadding(new Insets(10, 10, 10, 1));
     Scene todayScene = new Scene(todayHbox, 1000, 600);
     loginCheck(primaryStage, todayScene);
-    System.out.println("continuing");
-    // updateDataAfterLogin();
-    // userData = userDataOBJ.getJSONObject();
-    // UserData userData = UserData.getUserDataObject();
-    // JSONObject userDataJSON = userData.getJSONObjectFromFile(); // added
-    // userData.putJSONObjectIntoFile(userDataJSON);
-    // UserData userData = UserData.getUserDataObject();
-    // userData = newUserData();
-    // userData = main.getJSONObjectFromFile(); //added
 
-    // if(main.userFileExists()){
-    // userDataOBJ.setJSONObject(main.getJSONObjectFromFile());
-    // }
-    // else {
-    // userDataOBJ.setJSONObject(login.getUserData());
-    // }
-    // Buttons for the Navigation bar
+    // nav bar buttons for today
     Button today = new Button("Today");
-    Button goals = new Button("Goals");
+    Button goals = new Button("Progress");
     Button expenses = new Button("Expenses");
     Button exit = new Button("Exit");
 
-    // Label userNameLabel = new Label("Hello, Guest");
-    // Labels for the username
-    // if(main.userFileExists()) {
-
-    //Label userNameLabel = new Label("Hello, " + userDataOBJ.getUsername());
-    // }
-     Label userNameLabel = new Label("Hello, " );
+    // Label userNameLabel = new Label("Hello, " + user.getUserName());
     userNameLabel.setPadding(new Insets(15, 0, 25, 0));
     userNameLabel.getStyleClass().add("userNameLabel");
     userNameLabel.getStylesheets().add("css/home.css");
@@ -228,32 +209,29 @@ public class TodayGUI extends Application {
     goalsVbox.getChildren().addAll(setInput, setGoalButton);
 
     // displays current savings goal
-    Label currentGoal = new Label("Your current savings goal is: $" );// get from JSON
-                                                                                                    // file
-    Label goalsProgress = new Label("This is your savings goal progress");
+    Label currentGoal = new Label("Your current savings goal is: $"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    Label goalsProgress = new Label("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
+    Label spendingHistory = new Label("Your account's outflow of money compared to inflow is: ");
     currentGoal.setStyle("-fx-font-size: 25;");
     goalsProgress.setStyle("-fx-font-size: 20;");
+    spendingHistory.setStyle("-fx-font-size: 25;");
 
     // Progress Bar for the Goals Tab
-    ProgressBar goalsProgressBar = new ProgressBar(0);
+    double progress = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+    ProgressBar goalsProgressBar = new ProgressBar(progress); // change 0 to progress.
     goalsProgressBar.setMinHeight(15);
     goalsProgressBar.setMinWidth(250);
-    // if(userData.has("expensesArray1")){
-    //goalsProgressBar.setProgress(userDataOBJ.getProgress());
-    // }
 
     // Top VBox for current goal and goals progress labels
     VBox goalsTop = new VBox();
     goalsTop.setPadding(new Insets(10, 10, 10, 10));
-    goalsTop.getChildren().addAll(currentGoal, goalsProgress, goalsProgressBar);
+    goalsTop.getChildren().addAll(currentGoal, goalsProgress, spendingHistory, goalsProgressBar);
     goalsTop.setSpacing(10);
     goalsTop.setAlignment(Pos.CENTER);
 
     setGoalButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
-        double goal = Double.parseDouble(setInput.getText());// send to JSON file
-        // goalsProgressBar.setProgress(userData.getProgress());
-        currentGoal.setText("Your current savings goal is: $"); // might be redundant
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       }
     });
 
@@ -261,6 +239,7 @@ public class TodayGUI extends Application {
     goalsRoot.setCenter(goalsVbox);
     goalsRoot.setTop(goalsTop);
 
+    // nav bar buttons for goals
     Button today1 = new Button("Today");
     Button goals1 = new Button("Goals");
     Button expenses1 = new Button("Expenses");
@@ -296,13 +275,10 @@ public class TodayGUI extends Application {
     VBox topPane = new VBox();
     Label info, totalExpensesNum;
 
-    // Here need to add the method which can return the expenses
-
     // label which dispalys the total money spent
     info = new Label("Your total expenses are:"); // get the expenses of everything
     info.setStyle("-fx-font-size: 25;");
 
-    // label which displays the username
     totalExpensesNum = new Label("$");
     totalExpensesNum.setStyle("-fx-font-size: 20;");
 
@@ -430,6 +406,7 @@ public class TodayGUI extends Application {
     // Changes the scene to the main expenses, if the back button is pressed
     autoBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
+    // nav bar buttons for expenses
     Button today2 = new Button("Today");
     Button goals2 = new Button("Goals");
     Button expenses2 = new Button("Expenses");
@@ -461,43 +438,94 @@ public class TodayGUI extends Application {
 
     // Creates labels for balance and savings goal
     VBox labelRoot = new VBox();
-    Label acBalance = new Label("Your current balance is: $" ); // get the balance from JSON
-    Label acGoal = new Label("Your current savings goal is: $" ); // get the goal from
-                                                                                                // JSON
+    // Label accBalance = new Label("Your current balance is: $" +
+    // user.getUserBalance());
+    // Label accGoal = new Label("Your current savings goal is: $" +
+    // user.getSavingsGoal());
     labelRoot.setAlignment(Pos.CENTER);
-    labelRoot.getChildren().addAll(acBalance, acGoal);
+    labelRoot.getChildren().addAll(accBalanceLabel, accGoalsLabel);
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // New scene for spending, allows the user to pick a category and spend in the
+    // corresponding category
+    BorderPane spendCategoriesRoot = new BorderPane();
+
+    Scene spendCategoriesScene = new Scene(spendCategoriesRoot, 1000, 600);
+    spendCategoriesScene.getStylesheets().add("css/Today.css");
+
+    Button eduCategoryButton = new Button();
+    Button foodCategoryButton = new Button();
+    Button homeCategoryButton = new Button();
+    Button autoCategoryButton = new Button();
+    Button othersCategoryButton = new Button();
+    Button spendCategoriesBackButton = new Button("Go back");
+
+    // https://docs.oracle.com/javafx/2/ui_controls/button.htm
+    Image eduIcon = new Image("public/educationIcon.png", true);
+    Image foodIcon = new Image("public/foodIcon.png", true);
+    Image homeIcon = new Image("public/homeIcon.png", true);
+    Image autoIcon = new Image("public/autoIcon.png", true);
+    Image othersIcon = new Image("public/othersIcon.png", true);
+    
+    eduCategoryButton.setGraphic(new ImageView(eduIcon));
+    foodCategoryButton.setGraphic(new ImageView(foodIcon));
+    homeCategoryButton.setGraphic(new ImageView(homeIcon));
+    autoCategoryButton.setGraphic(new ImageView(autoIcon));
+    othersCategoryButton.setGraphic(new ImageView(othersIcon));
+
+    Label eduCategoryLabel = new Label("Education");
+    Label foodCategoryLabel = new Label("Food     ");
+    Label homeCategoryLabel = new Label("Home     ");
+    Label autoCategoryLabel = new Label("Auto     ");
+    Label othersCategoryLabel = new Label("Others   ");
+
+    VBox eduVBox = new VBox();
+    eduVBox.getChildren().addAll(eduCategoryButton, eduCategoryLabel);
+    VBox foodVBox = new VBox();
+    foodVBox.getChildren().addAll(foodCategoryButton, foodCategoryLabel);
+    VBox homeVBox = new VBox();
+    homeVBox.getChildren().addAll(homeCategoryButton, homeCategoryLabel);
+    VBox autoVBox = new VBox();
+    autoVBox.getChildren().addAll(autoCategoryButton, autoCategoryLabel);
+    VBox othersVBox = new VBox();
+    othersVBox.getChildren().addAll(othersCategoryButton, othersCategoryLabel);
+
+    HBox spendHBoxRoot = new HBox(eduVBox, foodVBox, homeVBox, autoVBox, othersVBox);
+    spendHBoxRoot.setSpacing(10);
+    spendHBoxRoot.setAlignment(Pos.CENTER);
+    spendHBoxRoot.setPadding(new Insets(10, 10, 10, 10));
+
+    spendCategoriesRoot.setCenter(spendHBoxRoot);
+    spendCategoriesRoot.setBottom(spendCategoriesBackButton);
 
     // Three buttons for the bottom, including deposit and spend, and back(optional)
     HBox buttonsRoot = new HBox();
     buttonsRoot.setSpacing(10);
     buttonsRoot.setAlignment(Pos.CENTER);
-    Button depositButton = new Button("Deposit");
-    Button spendButton = new Button("Spend");
+    Button depositButton = new Button("Deposit"); // goes to deposit scene
+    Button spendButton = new Button("Spend"); // goes to spend scene
     buttonsRoot.getChildren().addAll(depositButton, spendButton);
 
     // Deposit scene labels and deposit text field
     VBox depositLabelRoot = new VBox();
     depositLabelRoot.setSpacing(10);
-    double lastDepositOfArray = 0;
-    Label lastDeposit = new Label("Your account's latest deposit was: ");
-    Label lastDepositAmount = new Label("$" + lastDepositOfArray);
     TextField depositField = new TextField();
-    Button depositAmount = new Button("Deposit Amount");
+    Label lastDeposit = new Label("Your account's latest deposit was: ");
+    Label lastDepositAmount = new Label("$");
+    Button depositAmountButton = new Button("Deposit Amount");
 
-    depositAmount.setOnAction(new EventHandler<ActionEvent>() {
+    depositAmountButton.setOnAction(new EventHandler<ActionEvent>() { // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       public void handle(ActionEvent e) {
-        amount = Double.parseDouble(depositField.getText());
-        if (amount > 0) {
-          // lastDepositOfArray += amount
-          lastDepositAmount.setText("$" + Double.toString(amount));
-          // balance += amount;
-        }
+        double depositAmount = Double.parseDouble(depositField.getText());
+        user.deposit(depositAmount);
+        accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
+        lastDepositAmount.setText("$" + depositAmount);
       }
     });
 
     depositField.setMaxWidth(150.0);
     depositLabelRoot.setAlignment(Pos.CENTER);
-    depositLabelRoot.getChildren().addAll(lastDeposit, lastDepositAmount, depositField, depositAmount);
+    depositLabelRoot.getChildren().addAll(lastDeposit, lastDepositAmount, depositField, depositAmountButton);
 
     // Deposit scene button root
     HBox depositButtonRoot = new HBox();
@@ -526,20 +554,14 @@ public class TodayGUI extends Application {
     Label totalExpensesLabel = new Label("Your expenses total to: ");
     Label expensesAmountLabel = new Label("$" + arrayTotalExpenses);
     TextField spendingField = new TextField();
-    Button spendAmount = new Button("Spend Amount");
-
-    // spendAmount.setOnAction(new EventHandler<ActionEvent>(){
-    // public void handle(ActionEvent e) {
-    // amount = Double.parseDouble(spendingField.getText());
-    // if (balance - amount > 0 && amount > 0){
-    // arrayTotalExpenses += amount;
-    // expensesAmountLabel.setText("$" + amount);
-    // balance -= amount;
-    // }
-    // else {
-    // totalExpensesLabel.setText("You have insufficient funds! Please try again.");
-    // }
-    // }});
+    
+    Button spendAmount = new Button("Spend Amount"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    spendAmount.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent e) {
+        double spendingAmount = Double.parseDouble(spendingField.getText()); 
+        user.spendByCategory(user.getCategory(), spendingAmount);
+      }
+    });
 
     spendingField.setMaxWidth(150.0);
     spendLabelRoot.setAlignment(Pos.CENTER);
@@ -560,15 +582,44 @@ public class TodayGUI extends Application {
     // Creates a new scene, for the user to spend money
     Scene spendScene = new Scene(spendRoot, 1000, 600);
     spendScene.getStylesheets().add("css/Today.css");
-    // Changes the scene to the spend screen, if the button is pressed
-    spendButton.setOnAction(e -> primaryStage.setScene(spendScene));
+    // Changes the scene to the spend categories screen, if the button is pressed
+    spendButton.setOnAction(e -> primaryStage.setScene(spendCategoriesScene));
     // Changes the scene to the main Today tab, if the back button is pressed
-    spendBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
+    spendBackButton.setOnAction(e -> primaryStage.setScene(spendCategoriesScene));
+
+    spendCategoriesBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
+
+    eduCategoryButton.setOnAction(event -> {
+      primaryStage.setScene(spendScene);
+      user.setCategory('e');
+      // System.out.println(spendingAmount);
+    });
+
+    foodCategoryButton.setOnAction(event -> {
+      primaryStage.setScene(spendScene);
+        user.setCategory('f');
+    });
+    
+    homeCategoryButton.setOnAction(event -> {
+      primaryStage.setScene(spendScene);
+      user.setCategory('h');
+    });
+  
+    autoCategoryButton.setOnAction(event -> {
+      primaryStage.setScene(spendScene);
+      user.setCategory('t');
+    });
+  
+    othersCategoryButton.setOnAction(event -> {
+      primaryStage.setScene(spendScene);
+      user.setCategory('o');
+    });
 
     // Pie chart for each spending category, to the right of it the labels
-    ObservableList<PieChart.Data> expensesData = FXCollections.observableArrayList(new PieChart.Data("Education", 400),
-        new PieChart.Data("Home", 200), new PieChart.Data("Food", 300), new PieChart.Data("Auto & Transporation", 100),
+    ObservableList<PieChart.Data> expensesData = FXCollections.observableArrayList(new PieChart.Data("Education", 400), // @@@@@@@@@@@@
+        new PieChart.Data("Home", 100), new PieChart.Data("Food", 300), new PieChart.Data("Auto & Transporation", 100),
         new PieChart.Data("Others", 500));
+    // call userAttributes getexpensesbycategory to update the piechart
 
     PieChart categorizedExpenses = new PieChart(expensesData);
     Label caption = new Label("");
@@ -634,14 +685,17 @@ public class TodayGUI extends Application {
 
     // Adds an event handler that exits the program, when the user clicks 'exit'
     exit.setOnAction(event -> {
+      user.saveInFile();
       System.exit(0);
     });
 
     exit1.setOnAction(event -> {
+      user.saveInFile();
       System.exit(0);
     });
 
     exit2.setOnAction(event -> {
+      user.saveInFile();
       System.exit(0);
     });
 
@@ -656,7 +710,6 @@ public class TodayGUI extends Application {
     primaryStage.setResizable(false);
     primaryStage.setTitle("TrackR+");
     primaryStage.getIcons().add(new Image("file:public/trackr-plus_logo.png"));
-
     primaryStage.show();
   }
 
