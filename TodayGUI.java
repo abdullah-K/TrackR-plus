@@ -30,6 +30,7 @@ import javafx.scene.control.ProgressBar;
 import java.util.ArrayList;
 import org.json.JSONObject;
 import java.io.*;
+import javafx.scene.control.ProgressIndicator;
 
 public class TodayGUI extends Application {
 
@@ -166,7 +167,7 @@ public class TodayGUI extends Application {
 
     // nav bar buttons for today
     Button today = new Button("Today");
-    Button goals = new Button("Progress");
+    Button progressButton = new Button("Progress");
     Button expenses = new Button("Expenses");
     Button exit = new Button("Exit");
 
@@ -185,7 +186,7 @@ public class TodayGUI extends Application {
     imgLabel.setTranslateY(175);
 
     // Navigation Bar for the Today scene
-    VBox navigationBarToday = new VBox(userNameLabel, today, goals, expenses, exit, imgLabel);
+    VBox navigationBarToday = new VBox(userNameLabel, today, progressButton, expenses, exit, imgLabel);
     navigationBarToday.setAlignment(Pos.TOP_CENTER);
     navigationBarToday.getStyleClass().add("navigationPanel");
     navigationBarToday.getStylesheets().add("css/home.css");
@@ -203,7 +204,7 @@ public class TodayGUI extends Application {
     goalsVbox.setAlignment(Pos.CENTER);
 
     // text field to enter amount to save
-    TextField setInput = new TextField("Enter an amount...");
+    TextField setInput = new TextField();
     setInput.setMaxWidth(145);
     Button setGoalButton = new Button("Set a new savings goal");
     goalsVbox.getChildren().addAll(setInput, setGoalButton);
@@ -214,18 +215,19 @@ public class TodayGUI extends Application {
     Label spendingHistory = new Label("Your account's outflow of money compared to inflow is: ");
     currentGoal.setStyle("-fx-font-size: 25;");
     goalsProgress.setStyle("-fx-font-size: 20;");
-    spendingHistory.setStyle("-fx-font-size: 25;");
+    spendingHistory.setStyle("-fx-font-size: 20;");
 
     // Progress Bar for the Goals Tab
     double progress = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
-    ProgressBar goalsProgressBar = new ProgressBar(progress); // change 0 to progress.
+    ProgressBar goalsProgressBar = new ProgressBar(progress/100); // change 0 to progress.
+    ProgressIndicator progressIndicator = new ProgressIndicator(progress/100);
     goalsProgressBar.setMinHeight(15);
     goalsProgressBar.setMinWidth(250);
 
     // Top VBox for current goal and goals progress labels
     VBox goalsTop = new VBox();
     goalsTop.setPadding(new Insets(10, 10, 10, 10));
-    goalsTop.getChildren().addAll(currentGoal, goalsProgress, spendingHistory, goalsProgressBar);
+    goalsTop.getChildren().addAll(currentGoal, goalsProgress, spendingHistory, goalsProgressBar, progressIndicator);
     goalsTop.setSpacing(10);
     goalsTop.setAlignment(Pos.CENTER);
 
@@ -241,7 +243,7 @@ public class TodayGUI extends Application {
 
     // nav bar buttons for goals
     Button today1 = new Button("Today");
-    Button goals1 = new Button("Goals");
+    Button progress1 = new Button("Progress");
     Button expenses1 = new Button("Expenses");
     Button exit1 = new Button("Exit");
 
@@ -254,7 +256,7 @@ public class TodayGUI extends Application {
     imgLabel2.setTranslateY(235);
 
     // Navigation bar for the Goals tab
-    VBox navigationBarGoals = new VBox(today1, goals1, expenses1, exit1, imgLabel2);
+    VBox navigationBarGoals = new VBox(today1, progress1, expenses1, exit1, imgLabel2);
     navigationBarGoals.setAlignment(Pos.TOP_CENTER);
     navigationBarGoals.getStyleClass().add("navigationPanel");
     navigationBarGoals.getStylesheets().add("css/home.css");
@@ -408,7 +410,7 @@ public class TodayGUI extends Application {
 
     // nav bar buttons for expenses
     Button today2 = new Button("Today");
-    Button goals2 = new Button("Goals");
+    Button progress2 = new Button("Progress");
     Button expenses2 = new Button("Expenses");
     Button exit2 = new Button("Exit");
 
@@ -421,7 +423,7 @@ public class TodayGUI extends Application {
     imgLabel3.setTranslateY(235);
 
     // Navigation bar for the expenses tab
-    VBox navigationBarExp = new VBox(today2, goals2, expenses2, exit2, imgLabel3);
+    VBox navigationBarExp = new VBox(today2, progress2, expenses2, exit2, imgLabel3);
     navigationBarExp.setAlignment(Pos.TOP_CENTER);
     navigationBarExp.getStyleClass().add("navigationPanel");
     navigationBarExp.getStylesheets().add("css/home.css");
@@ -466,7 +468,7 @@ public class TodayGUI extends Application {
     Image homeIcon = new Image("public/homeIcon.png", true);
     Image autoIcon = new Image("public/autoIcon.png", true);
     Image othersIcon = new Image("public/othersIcon.png", true);
-    
+
     eduCategoryButton.setGraphic(new ImageView(eduIcon));
     foodCategoryButton.setGraphic(new ImageView(foodIcon));
     homeCategoryButton.setGraphic(new ImageView(homeIcon));
@@ -550,16 +552,18 @@ public class TodayGUI extends Application {
     // Spend scene labels and spend text field
     VBox spendLabelRoot = new VBox();
     spendLabelRoot.setSpacing(15);
-    double arrayTotalExpenses = 0.00;
-    Label totalExpensesLabel = new Label("Your expenses total to: ");
-    Label expensesAmountLabel = new Label("$" + arrayTotalExpenses);
+    Label totalExpensesLabel = new Label("Your previous expenses total to: ");
+    Label expensesAmountLabel = new Label("$" + user.getTotalExpenses());
     TextField spendingField = new TextField();
-    
+
     Button spendAmount = new Button("Spend Amount"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     spendAmount.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
-        double spendingAmount = Double.parseDouble(spendingField.getText()); 
+        double spendingAmount = Double.parseDouble(spendingField.getText());
         user.spendByCategory(user.getCategory(), spendingAmount);
+        expensesAmountLabel.setText("$" + user.getTotalExpenses());
+        spendingField.setText("");
+        accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
       }
     });
 
@@ -585,9 +589,9 @@ public class TodayGUI extends Application {
     // Changes the scene to the spend categories screen, if the button is pressed
     spendButton.setOnAction(e -> primaryStage.setScene(spendCategoriesScene));
     // Changes the scene to the main Today tab, if the back button is pressed
-    spendBackButton.setOnAction(e -> primaryStage.setScene(spendCategoriesScene));
+    spendBackButton.setOnAction(e-> primaryStage.setScene(spendCategoriesScene));
 
-    spendCategoriesBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
+    //spendCategoriesBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
 
     eduCategoryButton.setOnAction(event -> {
       primaryStage.setScene(spendScene);
@@ -599,40 +603,41 @@ public class TodayGUI extends Application {
       primaryStage.setScene(spendScene);
         user.setCategory('f');
     });
-    
+
     homeCategoryButton.setOnAction(event -> {
       primaryStage.setScene(spendScene);
       user.setCategory('h');
     });
-  
+
     autoCategoryButton.setOnAction(event -> {
       primaryStage.setScene(spendScene);
       user.setCategory('t');
     });
-  
+
     othersCategoryButton.setOnAction(event -> {
       primaryStage.setScene(spendScene);
       user.setCategory('o');
     });
 
     // Pie chart for each spending category, to the right of it the labels
-    ObservableList<PieChart.Data> expensesData = FXCollections.observableArrayList(new PieChart.Data("Education", 400), // @@@@@@@@@@@@
-        new PieChart.Data("Home", 100), new PieChart.Data("Food", 300), new PieChart.Data("Auto & Transporation", 100),
-        new PieChart.Data("Others", 500));
-    // call userAttributes getexpensesbycategory to update the piechart
-
+    // calls userAttributes getexpensesbycategory to update the piechart
+    ObservableList<PieChart.Data> expensesData = FXCollections.observableArrayList(
+        new PieChart.Data("Education", user.getTotalExpensesByCategory(user.getEducationExpenses())),
+        new PieChart.Data("Home", user.getTotalExpensesByCategory(user.getHomeExpenses())),
+        new PieChart.Data("Food", user.getTotalExpensesByCategory(user.getFoodExpenses())),
+        new PieChart.Data("Auto & Transporation", user.getTotalExpensesByCategory(user.getTransportationExpenses())),
+        new PieChart.Data("Others", user.getTotalExpensesByCategory(user.getOtherExpenses())));
     PieChart categorizedExpenses = new PieChart(expensesData);
     Label caption = new Label("");
     caption.setTranslateY(400);
     caption.setTranslateX(225);
-    for (final PieChart.Data data : categorizedExpenses.getData()) {
+    for (PieChart.Data data : categorizedExpenses.getData()) {
       data.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, e -> {
         caption.setText(String.valueOf("$" + data.getPieValue()));
       });
     }
-
     // Setting the title of the Pie chart
-    categorizedExpenses.setTitle("Your expenses");
+    categorizedExpenses.setTitle("Your current expenses are: ");
     categorizedExpenses.setStyle("-fx-text-fill: #333333");
     // legend for the Pie chart
     categorizedExpenses.setLegendVisible(false);
@@ -640,8 +645,20 @@ public class TodayGUI extends Application {
     // adds a percentage label
     chartRoot.getChildren().add(caption);
 
-    // NAVBAR______________________________________________________________________________
+    // back button to today that updates pie chart
+    spendCategoriesBackButton.setOnAction(event -> {
+      //categorizedExpenses.setData(expensesData);
+      ObservableList<PieChart.Data> expensesData2 = FXCollections.observableArrayList(
+          new PieChart.Data("Education", user.getTotalExpensesByCategory(user.getEducationExpenses())),
+          new PieChart.Data("Home", user.getTotalExpensesByCategory(user.getHomeExpenses())),
+          new PieChart.Data("Food", user.getTotalExpensesByCategory(user.getFoodExpenses())),
+          new PieChart.Data("Auto & Transporation", user.getTotalExpensesByCategory(user.getTransportationExpenses())),
+          new PieChart.Data("Others", user.getTotalExpensesByCategory(user.getOtherExpenses())));
+      categorizedExpenses.setData(expensesData2);
+      primaryStage.setScene(todayScene);
 
+    });
+    // NAVBAR______________________________________________________________________________
     // Sidebar navigation panel, event handlers for each button
 
     today.setOnAction(event -> {
@@ -657,20 +674,27 @@ public class TodayGUI extends Application {
     });
 
     // Changes the scene to the Goals tab
-    goals.setOnAction(event -> {
+    progressButton.setOnAction(event -> {
+      currentGoal.setText("Your current savings goal is: $"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+      goalsProgress.setText("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
+      spendingHistory.setText("Your account's outflow of money compared to inflow is: ");
+      double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+      goalsProgressBar.setProgress(progressPercent/100);
+      progressIndicator.setProgress(progressPercent/100);
       primaryStage.setScene(goalsScene);
     });
 
-    goals1.setOnAction(event -> {
+    progress1.setOnAction(event -> {
       primaryStage.setScene(goalsScene);
     });
 
-    goals2.setOnAction(event -> {
+    progress2.setOnAction(event -> {
       primaryStage.setScene(goalsScene);
     });
 
     // Changes the scene to the expenses tab
     expenses.setOnAction(event -> {
+      totalExpensesNum.setText("$" + user.getTotalExpenses());
       primaryStage.setScene(expensesScene);
 
     });
