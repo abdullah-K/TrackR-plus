@@ -19,14 +19,14 @@ public class UserAttributes extends User {
   private char category = 'p';
 
   /**
-   * 
+   * default constructor
    */
   public UserAttributes() {
     super();
   }
 
   /**
-   * 
+   * constructor that takes the the string of the filename 
    */
   public UserAttributes(String filename) {
     super(filename);
@@ -40,7 +40,7 @@ public class UserAttributes extends User {
     } 
 
   /**
-   * 
+   * adds an expense to a category of an array list 
    */
   public void populateArrayList(String JSONKey, ArrayList<Double> instanceList){
     // try {
@@ -54,52 +54,70 @@ public class UserAttributes extends User {
   }
   
   /**
-   * 
+   * constructor that takes in name, balance and goal 
    */
   public UserAttributes(String name, double balance, double goal) {
     super(name, balance, goal);
   }
 
   /**
-   * Getter methods for each of the expenses arrays
+   * Getter method for each of the expenses arrays
    */
   public char getCategory(){
     return this.category;
   }
   
   /**
-   * 
+   * sets the category of an array that will be gotten
    */
   public void setCategory(char aChar){
     this.category = aChar; 
   }
   
+  /**
+  * returns the array list for home expenses 
+  */
   public ArrayList<Double> getHomeExpenses() {
     return this.homeExpenses;
   }
-
+  
+  /**
+  * returns the array list for food expenses 
+  */
   public ArrayList<Double> getFoodExpenses() {
     return this.foodExpenses;
   }
 
+  /**
+  * returns the array list for education expenses 
+  */
   public ArrayList<Double> getEducationExpenses() {
     return this.educationExpenses;
   }
 
+  /**
+  * returns the array list for transportation expenses 
+  */
   public ArrayList<Double> getTransportationExpenses() {
     return this.transportationExpenses;
   }
 
+  /**
+  * returns the array list for other expenses 
+  */
   public ArrayList<Double> getOtherExpenses() {
     return this.otherExpenses;
   }
 
+  /**
+  * returns the array list that checks the money going in  
+  */
   public ArrayList<Double> getInflowArray() {
     return this.inflowArray;
   }
 
   /**
-   * 
+   * returns the total amount of money that goes in the account 
    */
   public double getInflowArrayTotal() {
     double inflowSum = 0.0;
@@ -152,7 +170,6 @@ public class UserAttributes extends User {
   /**
    * returns the total money spent of a certain category
    */
-
   public double getTotalExpensesByCategory(ArrayList<Double> categoryArray) {
     // sum all values in provided array and return a double
     double sum = 0;
@@ -220,11 +237,10 @@ public class UserAttributes extends User {
       super.setUserBalance(newBalance + amount);
       inflowArray.add(amount);
     }
-
   }
 
   /**
-   * 
+   * saves all the information in a file 
    */
   public void saveInFile() {
     try {
