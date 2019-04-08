@@ -19,14 +19,14 @@ public class UserAttributes extends User {
   private char category = 'p';
 
   /**
-   * 
+   * default constructor 
    */
   public UserAttributes() {
     super();
   }
 
   /**
-   * 
+   * constructor that takes in the string of the filename 
    */
   public UserAttributes(String filename) {
     super(filename);
@@ -40,7 +40,7 @@ public class UserAttributes extends User {
     } 
 
   /**
-   * 
+   * adds an expense to a certain array list category 
    */
   public void populateArrayList(String JSONKey, ArrayList<Double> instanceList){
     // try {
@@ -54,7 +54,7 @@ public class UserAttributes extends User {
   }
   
   /**
-   * 
+   * constructor that takes in name, balance and goal 
    */
   public UserAttributes(String name, double balance, double goal) {
     super(name, balance, goal);
@@ -68,38 +68,56 @@ public class UserAttributes extends User {
   }
   
   /**
-   * 
+   * sets the category of array list to get 
    */
   public void setCategory(char aChar){
     this.category = aChar; 
   }
   
+  /**
+   * returns array list of home expenses 
+   */
   public ArrayList<Double> getHomeExpenses() {
     return this.homeExpenses;
   }
 
+  /**
+   * returns array list of food expenses 
+   */
   public ArrayList<Double> getFoodExpenses() {
     return this.foodExpenses;
   }
 
+  /**
+   * returns array list of education expenses 
+   */
   public ArrayList<Double> getEducationExpenses() {
     return this.educationExpenses;
   }
 
+  /**
+   * returns array list of transportation expenses 
+   */
   public ArrayList<Double> getTransportationExpenses() {
     return this.transportationExpenses;
   }
 
+  /**
+   * returns array list of other expenses 
+   */
   public ArrayList<Double> getOtherExpenses() {
     return this.otherExpenses;
   }
 
+  /**
+   * returns array list of inflow of money  
+   */
   public ArrayList<Double> getInflowArray() {
     return this.inflowArray;
   }
 
   /**
-   * 
+   * returns the total number of money that was sent into account 
    */
   public double getInflowArrayTotal() {
     double inflowSum = 0.0;
@@ -224,7 +242,7 @@ public class UserAttributes extends User {
   }
 
   /**
-   * 
+   * saves all the information into a file 
    */
   public void saveInFile() {
     try {
