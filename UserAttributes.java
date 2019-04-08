@@ -123,36 +123,52 @@ public class UserAttributes extends User {
   /**
    * returns total amount of money spent
    */
+  //test
   public double getTotalExpenses() {
     // add parameters and sum all arrays up to return a value
     double sum = 0;
-    double sum1 = 0;
-    double sum2 = 0;
-    double sum3 = 0;
-    double sum4 = 0;
     for (int i = 0; i < homeExpenses.size(); i++) {
-      sum = sum + homeExpenses.get(i);
+      sum +=homeExpenses.get(i);
     }
     for (int j = 0; j < foodExpenses.size(); j++) {
-      sum1 = sum1 + foodExpenses.get(j);
+      sum += foodExpenses.get(j);
     }
     for (int k = 0; k < educationExpenses.size(); k++) {
-      sum2 = sum2 + educationExpenses.get(k);
+      sum += educationExpenses.get(k);
     }
     for (int l = 0; l < transportationExpenses.size(); l++) {
-      sum3 = sum3 + transportationExpenses.get(l);
+      sum += transportationExpenses.get(l);
     }
     for (int m = 0; m < otherExpenses.size(); m++) {
-      sum4 = sum4 + otherExpenses.get(m);
+      sum += otherExpenses.get(m);
     }
 
-    return sum + sum1 + sum2 + sum3 + sum4;
+    return sum ;
   }
 
   /**
    * returns the total money spent of a certain category
    */
 
+  //test
+
+  public double getTotalExpensesByCategory(char category) {
+    switch (category) {
+    case 'e': // Education category
+      return getTotalExpensesByCategory(educationExpenses);
+    case 'h': // Home category
+      return getTotalExpensesByCategory(homeExpenses);
+    case 't': // Transporation category
+      return getTotalExpensesByCategory(transportationExpenses);
+    case 'f': // Food category
+      return getTotalExpensesByCategory(foodExpenses);
+    case 'o': // Other category
+      return getTotalExpensesByCategory(otherExpenses);
+    default:
+      System.out.print("Invalid option. Please select one of the navigation options.\n");
+	  return -1d;
+    }
+  }
   public double getTotalExpensesByCategory(ArrayList<Double> categoryArray) {
     // sum all values in provided array and return a double
     double sum = 0;
@@ -178,8 +194,9 @@ public class UserAttributes extends User {
   /**
    * spends money on a certain category
    */
+  //test
   public void spendByCategory(char category, double amount) {
-    category = getCategory();
+    //category = getCategory();
     // use the array corresponding to the given category
 
     switch (category) {
