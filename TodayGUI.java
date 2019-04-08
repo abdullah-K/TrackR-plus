@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 import java.io.*;
 import javafx.scene.control.ProgressIndicator;
+import javafx.stage.WindowEvent;
 
 public class TodayGUI extends Application {
 
@@ -44,7 +46,7 @@ public class TodayGUI extends Application {
   }
 
   public void loginCheck(Stage primaryStage, Scene todayScene) {
-    // NEED TO CHECK IF FILE EXISTS, TO SEE IF WE GO TO LOGIN OR TODAY
+    // check if file exists to see if it goes the today scene or login scene 
     userNameLabel = new Label("Hello");
     accBalanceLabel = new Label("Your current balance is $0.0");
     accGoalsLabel = new Label("Your current savings goal is $0.0");
@@ -63,33 +65,31 @@ public class TodayGUI extends Application {
   }
 
   /**
-   * creates and returns a scroll pane for expenses categories
+   * creates and returns a scroll pane for a certain category
    */
-  public ScrollPane createScrollPane() {
+  public ScrollPane createScrollPane(ArrayList<Double> array) {
     // https://docs.oracle.com/javafx/2/ui_controls/scrollpane.htm helped
-    // maybe have parameter for what category it is, then we can grab the expenses
-    ArrayList<Label> heyo = new ArrayList<Label>();
-    double amount = 33.0;
-    for (int i = 0; i < 40; i++) {
-      Label tempLabel = new Label(String.valueOf(amount));
-      heyo.add(tempLabel);
-      amount += 2.5;
+    // creates a scroll pane with each category's array elements 
+    ArrayList<Label> scrollList = new ArrayList<Label>();
+    for (int i = 0; i < array.size(); i++) {
+      Label tempLabel = new Label(String.valueOf(array.get(i)));
+      scrollList.add(tempLabel);
       tempLabel.setStyle("-fx-text-fill: #e6e6e6;");
 
     }
 
     ScrollPane scrollpane = new ScrollPane();
     scrollpane.getStyleClass().add("scrollPane");
-    VBox textst = new VBox();
+    VBox expenseslist = new VBox();
 
-    for (int i = 0; i < heyo.size(); i++) {
-      textst.getChildren().add(heyo.get(i));
+    for (int i = 0; i < scrollList.size(); i++) {
+      expenseslist.getChildren().add(scrollList.get(i));
     }
 
-    // textst.getChildren().addAll(hi, bye, dfad);
     scrollpane.setMaxWidth(500);
+    scrollpane.setMinHeight(200);
     scrollpane.setMaxHeight(450);
-    scrollpane.setContent(textst);
+    scrollpane.setContent(expenseslist);
     scrollpane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
     return scrollpane;
   }
@@ -163,15 +163,16 @@ public class TodayGUI extends Application {
     todayHbox.setSpacing(145);
     todayRoot.setPadding(new Insets(10, 10, 10, 1));
     Scene todayScene = new Scene(todayHbox, 1000, 600);
+
     loginCheck(primaryStage, todayScene);
 
     // nav bar buttons for today
     Button today = new Button("Today");
+    Button overview = new Button("Overview");
     Button progressButton = new Button("Progress");
     Button expenses = new Button("Expenses");
     Button exit = new Button("Exit");
 
-    // Label userNameLabel = new Label("Hello, " + user.getUserName());
     userNameLabel.setPadding(new Insets(15, 0, 25, 0));
     userNameLabel.getStyleClass().add("userNameLabel");
     userNameLabel.getStylesheets().add("css/home.css");
@@ -183,17 +184,16 @@ public class TodayGUI extends Application {
     imageView.setFitWidth(125);
     imageView.setFitHeight(125);
     imgLabel.setGraphic(imageView);
-    imgLabel.setTranslateY(175);
+    imgLabel.setTranslateY(120);
 
     // Navigation Bar for the Today scene
-    VBox navigationBarToday = new VBox(userNameLabel, today, progressButton, expenses, exit, imgLabel);
+    VBox navigationBarToday = new VBox(userNameLabel, today, overview, progressButton, expenses, exit, imgLabel);
     navigationBarToday.setAlignment(Pos.TOP_CENTER);
     navigationBarToday.getStyleClass().add("navigationPanel");
     navigationBarToday.getStylesheets().add("css/home.css");
     navigationBarToday.setSpacing(2);
 
-    // GOALS
-    // TAB_______________________________________________________________________________________
+    // GOALS TAB_______________________________________________________________________________________
     BorderPane goalsRoot = new BorderPane();
     HBox goalsHbox = new HBox();
     goalsHbox.setSpacing(208);
@@ -202,22 +202,20 @@ public class TodayGUI extends Application {
     VBox goalsVbox = new VBox();
     goalsVbox.setSpacing(10);
     goalsVbox.setAlignment(Pos.CENTER);
-
-    // text field to enter amount to save
-    TextField setInput = new TextField();
+    TextField setInput = new TextField(); // text field to enter amount to save
     setInput.setMaxWidth(145);
     Button setGoalButton = new Button("Set a new savings goal");
     goalsVbox.getChildren().addAll(setInput, setGoalButton);
 
     // displays current savings goal
-    Label currentGoal = new Label("Your current savings goal is: $"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    Label currentGoal = new Label("Your current savings goal is: $" + user.getSavingsGoal());
     Label goalsProgress = new Label("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
     Label spendingHistory = new Label("Your account's outflow of money compared to inflow is: ");
     currentGoal.setStyle("-fx-font-size: 25;");
     goalsProgress.setStyle("-fx-font-size: 20;");
     spendingHistory.setStyle("-fx-font-size: 20;");
 
-    // Progress Bar for the Goals Tab
+    // Progress bar for the Goals Tab
     double progress = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
     ProgressBar goalsProgressBar = new ProgressBar(progress/100); // change 0 to progress.
     ProgressIndicator progressIndicator = new ProgressIndicator(progress/100);
@@ -233,7 +231,9 @@ public class TodayGUI extends Application {
 
     setGoalButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        double savingsAmount = Double.parseDouble(setInput.getText());
+        user.setSavingsGoal(savingsAmount);
+        currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
       }
     });
 
@@ -243,6 +243,7 @@ public class TodayGUI extends Application {
 
     // nav bar buttons for goals
     Button today1 = new Button("Today");
+    Button overview1 = new Button("Overview");
     Button progress1 = new Button("Progress");
     Button expenses1 = new Button("Expenses");
     Button exit1 = new Button("Exit");
@@ -253,10 +254,10 @@ public class TodayGUI extends Application {
     imageView2.setFitHeight(125);
     Label imgLabel2 = new Label();
     imgLabel2.setGraphic(imageView2);
-    imgLabel2.setTranslateY(235);
+    imgLabel2.setTranslateY(187);
 
     // Navigation bar for the Goals tab
-    VBox navigationBarGoals = new VBox(today1, progress1, expenses1, exit1, imgLabel2);
+    VBox navigationBarGoals = new VBox(today1, overview1, progress1, expenses1, exit1, imgLabel2);
     navigationBarGoals.setAlignment(Pos.TOP_CENTER);
     navigationBarGoals.getStyleClass().add("navigationPanel");
     navigationBarGoals.getStylesheets().add("css/home.css");
@@ -277,11 +278,11 @@ public class TodayGUI extends Application {
     VBox topPane = new VBox();
     Label info, totalExpensesNum;
 
-    // label which dispalys the total money spent
-    info = new Label("Your total expenses are:"); // get the expenses of everything
+    // label which displays the total money spent
+    info = new Label("Your total expenses are:"); // get the expenses of everything @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     info.setStyle("-fx-font-size: 25;");
 
-    totalExpensesNum = new Label("$");
+    totalExpensesNum = new Label("$" + user.getTotalExpenses());
     totalExpensesNum.setStyle("-fx-font-size: 20;");
 
     topPane.setPadding(new Insets(10, 10, 10, 10));
@@ -311,25 +312,22 @@ public class TodayGUI extends Application {
     categoryBox.setAlignment(Pos.CENTER);
     categoryBox.getChildren().addAll(eduButton, foodButton, homeButton, autoButton, othersButton);
 
-    // education scene labels && buttons
+    //___EDUCATION___
     VBox eduLabelRoot = new VBox();
     eduLabelRoot.setSpacing(10);
-
-    Label totalEduExpenses = new Label("Your total expenses for Education are: ");
+    Label totalEduExpenses = new Label("Your total expenses for Education are: "); 
     totalEduExpenses.setStyle("-fx-font-size: 20;");
-    eduLabelRoot.setAlignment(Pos.TOP_CENTER);
+    eduLabelRoot.setAlignment(Pos.CENTER);
     Button eduBackButton = new Button("Go Back");
-    eduLabelRoot.getChildren().addAll(totalEduExpenses, createScrollPane(), eduBackButton);
+    eduLabelRoot.getChildren().addAll(totalEduExpenses, createScrollPane(user.getEducationExpenses()), eduBackButton);
 
     // create a new scene for education expenses
     Scene eduScene = new Scene(eduLabelRoot, 1000, 600);
     eduScene.getStylesheets().add("css/Today.css");
     eduButton.setOnAction(e -> primaryStage.setScene(eduScene));
-
-    // Changes the scene to the expenses tab, if the back button is pressed
     eduBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
-    // ___FOOD__
+    // ___FOOD___
     // label root for food category
     VBox foodLabelRoot = new VBox();
     foodLabelRoot.setSpacing(10);
@@ -337,16 +335,12 @@ public class TodayGUI extends Application {
     totalFoodExpenses.setStyle("-fx-font-size: 20;");
     foodLabelRoot.setAlignment(Pos.CENTER);
     Button foodBackButton = new Button("Go Back");
-    foodLabelRoot.getChildren().addAll(totalFoodExpenses, createScrollPane(), foodBackButton);
+    foodLabelRoot.getChildren().addAll(totalFoodExpenses, createScrollPane(user.getFoodExpenses()), foodBackButton);
 
     // creates a scene for food
     Scene foodScene = new Scene(foodLabelRoot, 1000, 600);
     foodScene.getStylesheets().add("css/Today.css");
-
-    // Changes the scene to the food screen, if the button is pressed
     foodButton.setOnAction(e -> primaryStage.setScene(foodScene));
-
-    // Changes the scene to the expenses tab, if the back button is pressed
     foodBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // ___House___
@@ -357,16 +351,12 @@ public class TodayGUI extends Application {
     totalHomeExpenses.setStyle("-fx-font-size: 20;");
     homeLabelRoot.setAlignment(Pos.CENTER);
     Button homeBackButton = new Button("Go Back");
-    homeLabelRoot.getChildren().addAll(totalHomeExpenses, createScrollPane(), homeBackButton);
+    homeLabelRoot.getChildren().addAll(totalHomeExpenses, createScrollPane(user.getHomeExpenses()), homeBackButton);
 
     // creates a scene for home
     Scene homeScene = new Scene(homeLabelRoot, 1000, 600);
     homeScene.getStylesheets().add("css/Today.css");
-
-    // Changes the scene to the home screen, if the button is pressed
     homeButton.setOnAction(e -> primaryStage.setScene(homeScene));
-
-    // Changes the scene to the main expenses, if the back button is pressed
     homeBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // ___Others___
@@ -377,16 +367,12 @@ public class TodayGUI extends Application {
     totalOthersExpenses.setStyle("-fx-font-size: 20;");
     othersLabelRoot.setAlignment(Pos.CENTER);
     Button othersBackButton = new Button("Go Back");
-    othersLabelRoot.getChildren().addAll(totalOthersExpenses, createScrollPane(), othersBackButton);
+    othersLabelRoot.getChildren().addAll(totalOthersExpenses, createScrollPane(user.getOtherExpenses()), othersBackButton);
 
     // creates a scene for others
     Scene othersScene = new Scene(othersLabelRoot, 1000, 600);
     othersScene.getStylesheets().add("css/Today.css");
-
-    // Changes the scene to the home screen, if the button is pressed
     othersButton.setOnAction(e -> primaryStage.setScene(othersScene));
-
-    // Changes the scene to the main expenses, if the back button is pressed
     othersBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // label root for auto and tansportation
@@ -394,22 +380,19 @@ public class TodayGUI extends Application {
     autoLabelRoot.setSpacing(10);
     Label totalAutoExpenses = new Label("Your total expenses for Auto Transportation are: ");
     totalAutoExpenses.setStyle("-fx-font-size: 20;");
-    autoLabelRoot.setAlignment(Pos.TOP_CENTER);
+    autoLabelRoot.setAlignment(Pos.CENTER);
     Button autoBackButton = new Button("Go Back");
-    autoLabelRoot.getChildren().addAll(totalAutoExpenses, createScrollPane(), autoBackButton);
+    autoLabelRoot.getChildren().addAll(totalAutoExpenses, createScrollPane(user.getTransportationExpenses()), autoBackButton);
 
     // creates a scene for auto and transporation category
     Scene autoScene = new Scene(autoLabelRoot, 1000, 600);
     autoScene.getStylesheets().add("css/Today.css");
-
-    // Changes the scene to the other screen, if the button is pressed
     autoButton.setOnAction(e -> primaryStage.setScene(autoScene));
-
-    // Changes the scene to the main expenses, if the back button is pressed
     autoBackButton.setOnAction(e -> primaryStage.setScene(expensesScene));
 
     // nav bar buttons for expenses
     Button today2 = new Button("Today");
+    Button overview2 = new Button("Overview");
     Button progress2 = new Button("Progress");
     Button expenses2 = new Button("Expenses");
     Button exit2 = new Button("Exit");
@@ -420,10 +403,10 @@ public class TodayGUI extends Application {
     imageView3.setFitWidth(125);
     imageView3.setFitHeight(125);
     imgLabel3.setGraphic(imageView3);
-    imgLabel3.setTranslateY(235);
+    imgLabel3.setTranslateY(187);
 
     // Navigation bar for the expenses tab
-    VBox navigationBarExp = new VBox(today2, progress2, expenses2, exit2, imgLabel3);
+    VBox navigationBarExp = new VBox(today2, overview2, progress2, expenses2, exit2, imgLabel3);
     navigationBarExp.setAlignment(Pos.TOP_CENTER);
     navigationBarExp.getStyleClass().add("navigationPanel");
     navigationBarExp.getStylesheets().add("css/home.css");
@@ -438,6 +421,7 @@ public class TodayGUI extends Application {
 
     // ___________________________________________________________________________________________
 
+    //TODAY CONTINUED_____________________________________________________________________________
     // Creates labels for balance and savings goal
     VBox labelRoot = new VBox();
     // Label accBalance = new Label("Your current balance is: $" +
@@ -448,26 +432,30 @@ public class TodayGUI extends Application {
     labelRoot.getChildren().addAll(accBalanceLabel, accGoalsLabel);
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    // New scene for spending, allows the user to pick a category and spend in the
-    // corresponding category
+    // New scene for spending, allows the user to pick a category and spend in the corresponding category
     BorderPane spendCategoriesRoot = new BorderPane();
+    spendCategoriesRoot.setPadding(new Insets(10, 10, 10, 10));
 
     Scene spendCategoriesScene = new Scene(spendCategoriesRoot, 1000, 600);
-    spendCategoriesScene.getStylesheets().add("css/Today.css");
+    spendCategoriesScene.getStylesheets().add("css/Categories.css");
 
+    //All the category buttons 
+    Label chooseSpendCategory = new Label("Choose a category to spend in");
+    chooseSpendCategory.setStyle("-fx-font-size: 20");
     Button eduCategoryButton = new Button();
     Button foodCategoryButton = new Button();
     Button homeCategoryButton = new Button();
     Button autoCategoryButton = new Button();
     Button othersCategoryButton = new Button();
     Button spendCategoriesBackButton = new Button("Go back");
+    spendCategoriesBackButton.getStylesheets().add("css/Today.css");  
 
     // https://docs.oracle.com/javafx/2/ui_controls/button.htm
-    Image eduIcon = new Image("public/educationIcon.png", true);
-    Image foodIcon = new Image("public/foodIcon.png", true);
-    Image homeIcon = new Image("public/homeIcon.png", true);
-    Image autoIcon = new Image("public/autoIcon.png", true);
-    Image othersIcon = new Image("public/othersIcon.png", true);
+    Image eduIcon = new Image("public/educationIcon.png", 95, 75, false, false);
+    Image foodIcon = new Image("public/foodIcon.png", 75, 75, false, false);
+    Image homeIcon = new Image("public/homeIcon.png", 75, 75, false, false);
+    Image autoIcon = new Image("public/autoIcon.png", 85, 75, false, false);
+    Image othersIcon = new Image("public/othersIcon.png", 75, 75, false, false);
 
     eduCategoryButton.setGraphic(new ImageView(eduIcon));
     foodCategoryButton.setGraphic(new ImageView(foodIcon));
@@ -476,20 +464,25 @@ public class TodayGUI extends Application {
     othersCategoryButton.setGraphic(new ImageView(othersIcon));
 
     Label eduCategoryLabel = new Label("Education");
-    Label foodCategoryLabel = new Label("Food     ");
-    Label homeCategoryLabel = new Label("Home     ");
-    Label autoCategoryLabel = new Label("Auto     ");
-    Label othersCategoryLabel = new Label("Others   ");
+    Label foodCategoryLabel = new Label("Food");
+    Label homeCategoryLabel = new Label("Home");
+    Label autoCategoryLabel = new Label("Auto");
+    Label othersCategoryLabel = new Label("Others");
 
     VBox eduVBox = new VBox();
+    eduVBox.setAlignment(Pos.CENTER);
     eduVBox.getChildren().addAll(eduCategoryButton, eduCategoryLabel);
     VBox foodVBox = new VBox();
+    foodVBox.setAlignment(Pos.CENTER);
     foodVBox.getChildren().addAll(foodCategoryButton, foodCategoryLabel);
     VBox homeVBox = new VBox();
+    homeVBox.setAlignment(Pos.CENTER);
     homeVBox.getChildren().addAll(homeCategoryButton, homeCategoryLabel);
     VBox autoVBox = new VBox();
+    autoVBox.setAlignment(Pos.CENTER);
     autoVBox.getChildren().addAll(autoCategoryButton, autoCategoryLabel);
     VBox othersVBox = new VBox();
+    othersVBox.setAlignment(Pos.CENTER);
     othersVBox.getChildren().addAll(othersCategoryButton, othersCategoryLabel);
 
     HBox spendHBoxRoot = new HBox(eduVBox, foodVBox, homeVBox, autoVBox, othersVBox);
@@ -497,7 +490,10 @@ public class TodayGUI extends Application {
     spendHBoxRoot.setAlignment(Pos.CENTER);
     spendHBoxRoot.setPadding(new Insets(10, 10, 10, 10));
 
+    spendCategoriesRoot.setAlignment(spendCategoriesBackButton, Pos.CENTER);
+    spendCategoriesRoot.setAlignment(chooseSpendCategory, Pos.CENTER);
     spendCategoriesRoot.setCenter(spendHBoxRoot);
+    spendCategoriesRoot.setTop(chooseSpendCategory);
     spendCategoriesRoot.setBottom(spendCategoriesBackButton);
 
     // Three buttons for the bottom, including deposit and spend, and back(optional)
@@ -544,10 +540,8 @@ public class TodayGUI extends Application {
     // Creates a new scene, for the user to deposit money
     Scene depositScene = new Scene(depositRoot, 1000, 600);
     depositScene.getStylesheets().add("css/Today.css");
-    // Changes the scene to the deposit screen, if the button is pressed
-    depositButton.setOnAction(e -> primaryStage.setScene(depositScene));
-    // Changes the scene to the main Today tab, if the back button is pressed
-    depositBackButton.setOnAction(e -> primaryStage.setScene(todayScene));
+    depositButton.setOnAction(e -> primaryStage.setScene(depositScene)); // Changes the scene to the deposit screen, if the button is pressed
+    depositBackButton.setOnAction(e -> primaryStage.setScene(todayScene)); // Changes the scene to the main Today tab, if the back button is pressed
 
     // Spend scene labels and spend text field
     VBox spendLabelRoot = new VBox();
@@ -655,29 +649,135 @@ public class TodayGUI extends Application {
           new PieChart.Data("Auto & Transporation", user.getTotalExpensesByCategory(user.getTransportationExpenses())),
           new PieChart.Data("Others", user.getTotalExpensesByCategory(user.getOtherExpenses())));
       categorizedExpenses.setData(expensesData2);
+      for (PieChart.Data data2 : categorizedExpenses.getData()) {
+        data2.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, e -> {
+          caption.setText(String.valueOf("$" + data2.getPieValue()));
+        });
+      }
       primaryStage.setScene(todayScene);
-
     });
+
+    //Overview page_______________________________________________________________________________________
+
+    GridPane overviewRoot = new GridPane();
+    HBox overviewHBox = new HBox();
+    overviewHBox.setSpacing(8);
+    overviewRoot.getStylesheets().add("css/Categories.css");
+    overviewRoot.setVgap(8);
+    overviewRoot.setHgap(8);
+    overviewRoot.setPadding(new Insets(15, 15, 15, 15));
+
+    VBox overviewIncome = new VBox();
+    overviewIncome.setStyle("-fx-background-color: #1D2027; -fx-background-radius: 15;");
+    overviewIncome.setAlignment(Pos.CENTER);
+    overviewIncome.setMaxSize(225, 175);
+    overviewIncome.setMinSize(225,175);
+    VBox overviewExpenses = new VBox();
+    overviewExpenses.setStyle("-fx-background-color: #1D2027; -fx-background-radius: 15;");
+    overviewExpenses.setAlignment(Pos.CENTER);
+    overviewExpenses.setMaxSize(225, 175);
+    overviewExpenses.setMinSize(225,175);
+    VBox overviewProfit = new VBox();
+    overviewProfit.setStyle("-fx-background-color: #1D2027; -fx-background-radius: 15;");
+    overviewProfit.setAlignment(Pos.CENTER);
+    overviewProfit.setMaxSize(225, 175);
+    overviewProfit.setMinSize(225,175);
+
+    Label ovIncomeNumber = new Label("$" + user.getInflowArrayTotal());
+    ovIncomeNumber.setStyle("-fx-font-size:30");
+    Label ovIncomeLabel = new Label("Income");
+    ovIncomeLabel.setStyle("-fx-text-fill: #30A4FB; -fx-font-family: SanSerif; -fx-font-size:20");
+    Label ovExpensesNumber = new Label("$" + user.getTotalExpenses());
+    ovExpensesNumber.setStyle("-fx-font-size:30");
+    Label ovExpensesLabel = new Label("Expenses");
+    ovExpensesLabel.setStyle("-fx-text-fill: #30A4FB; -fx-font-family: SanSerif; -fx-font-size:20");
+
+    overviewIncome.getChildren().addAll(ovIncomeNumber, ovIncomeLabel);
+    overviewExpenses.getChildren().addAll(ovExpensesNumber, ovExpensesLabel);
+
+    // TrackR+ Logo
+    ImageView imageView4 = new ImageView(logoImage);
+    imageView4.setFitWidth(125);
+    imageView4.setFitHeight(125);
+    Label imgLabel4 = new Label();
+    imgLabel4.setGraphic(imageView4);
+    imgLabel4.setTranslateY(187);
+
+    //Navigation bar for the overview page
+    Button today3 = new Button("Today");
+    Button overview3 = new Button("Overview");
+    Button progress3 = new Button("Progress");
+    Button expenses3 = new Button("Expenses");
+    Button exit3 = new Button("Exit");
+    VBox navigationBarOv = new VBox(today3, overview3, progress3, expenses3, exit3, imgLabel4);
+    navigationBarOv.setAlignment(Pos.TOP_CENTER);
+    navigationBarOv.getStyleClass().add("navigationPanel");
+    navigationBarOv.getStylesheets().add("css/home.css");
+    navigationBarOv.setSpacing(2);
+
+    overviewRoot.setConstraints(overviewIncome, 0, 0);
+    overviewRoot.setConstraints(overviewExpenses, 5, 0);
+    overviewRoot.setConstraints(overviewProfit, 10, 0);
+    overviewRoot.getChildren().addAll(overviewIncome, overviewExpenses, overviewProfit);
+    overviewHBox.getChildren().addAll(navigationBarOv, overviewRoot);
+    Scene overviewScene = new Scene(overviewHBox, 1000, 600);
+    overviewScene.getStylesheets().add("css/categories.css");
+
+
     // NAVBAR______________________________________________________________________________
     // Sidebar navigation panel, event handlers for each button
-
+    //sets scene to today tab
     today.setOnAction(event -> {
+      accGoalsLabel.setText("Your current savings goal is: $" + user.getSavingsGoal());
       primaryStage.setScene(todayScene);
     });
 
     today1.setOnAction(event -> {
+      accGoalsLabel.setText("Your current savings goal is: $" + user.getSavingsGoal());
       primaryStage.setScene(todayScene);
     });
 
     today2.setOnAction(event -> {
+      accGoalsLabel.setText("Your current savings goal is: $" + user.getSavingsGoal());
       primaryStage.setScene(todayScene);
+    });
+
+    today3.setOnAction(event -> {
+        accGoalsLabel.setText("Your current savings goal is: $" + user.getSavingsGoal());
+        primaryStage.setScene(todayScene);
+      });
+
+    //Adds an event handler that changes the scene to the overview tab
+    overview.setOnAction(event -> {
+        ovExpensesNumber.setText("$" + user.getTotalExpenses());
+        ovIncomeNumber.setText("$" + user.getInflowArrayTotal());
+        primaryStage.setScene(overviewScene);
+    });
+
+    overview1.setOnAction(event -> {
+        ovExpensesNumber.setText("$" + user.getTotalExpenses());
+        ovIncomeNumber.setText("$" + user.getInflowArrayTotal());
+        primaryStage.setScene(overviewScene);
+    });
+
+    overview2.setOnAction(event -> {
+        ovExpensesNumber.setText("$" + user.getTotalExpenses());
+        ovIncomeNumber.setText("$" + user.getInflowArrayTotal());
+        primaryStage.setScene(overviewScene);
+    });
+
+    overview3.setOnAction(event -> {
+        ovExpensesNumber.setText("$" + user.getTotalExpenses());
+        ovIncomeNumber.setText("$" + user.getInflowArrayTotal());
+        primaryStage.setScene(overviewScene);
     });
 
     // Changes the scene to the Goals tab
     progressButton.setOnAction(event -> {
-      currentGoal.setText("Your current savings goal is: $"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+      currentGoal.setText("Your current savings goal is: $"); 
       goalsProgress.setText("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
       spendingHistory.setText("Your account's outflow of money compared to inflow is: ");
+      currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
       double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
       goalsProgressBar.setProgress(progressPercent/100);
       progressIndicator.setProgress(progressPercent/100);
@@ -685,12 +785,37 @@ public class TodayGUI extends Application {
     });
 
     progress1.setOnAction(event -> {
+      currentGoal.setText("Your current savings goal is: $"); 
+      goalsProgress.setText("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
+      spendingHistory.setText("Your account's outflow of money compared to inflow is: ");
+      currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+      double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+      goalsProgressBar.setProgress(progressPercent/100);
+      progressIndicator.setProgress(progressPercent/100);
       primaryStage.setScene(goalsScene);
     });
 
     progress2.setOnAction(event -> {
+      currentGoal.setText("Your current savings goal is: $"); 
+      goalsProgress.setText("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
+      spendingHistory.setText("Your account's outflow of money compared to inflow is: ");
+      currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+      double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+      goalsProgressBar.setProgress(progressPercent/100);
+      progressIndicator.setProgress(progressPercent/100);
       primaryStage.setScene(goalsScene);
     });
+
+    progress3.setOnAction(event -> {
+      currentGoal.setText("Your current savings goal is: $"); 
+      goalsProgress.setText("You have currently spent: $" + user.getTotalExpenses()); // getTotalExpenses
+      spendingHistory.setText("Your account's outflow of money compared to inflow is: ");
+      currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+      double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+      goalsProgressBar.setProgress(progressPercent/100);
+      progressIndicator.setProgress(progressPercent/100);
+      primaryStage.setScene(goalsScene);
+      });
 
     // Changes the scene to the expenses tab
     expenses.setOnAction(event -> {
@@ -700,12 +825,19 @@ public class TodayGUI extends Application {
     });
 
     expenses1.setOnAction(event -> {
+      totalExpensesNum.setText("$" + user.getTotalExpenses());
       primaryStage.setScene(expensesScene);
     });
 
     expenses2.setOnAction(event -> {
+      totalExpensesNum.setText("$" + user.getTotalExpenses());
       primaryStage.setScene(expensesScene);
     });
+
+    expenses3.setOnAction(event -> {
+      totalExpensesNum.setText("$" + user.getTotalExpenses());
+      primaryStage.setScene(expensesScene);
+      });
 
     // Adds an event handler that exits the program, when the user clicks 'exit'
     exit.setOnAction(event -> {
@@ -722,6 +854,17 @@ public class TodayGUI extends Application {
       user.saveInFile();
       System.exit(0);
     });
+
+    exit3.setOnAction(event -> {
+        user.saveInFile();
+        System.exit(0);
+      });
+
+    primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+      public void handle(WindowEvent event) {
+          user.saveInFile();
+      }
+    });    
 
     // ___________________________________________________________________________________
 
