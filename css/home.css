@@ -21,11 +21,9 @@
     -fx-background-color: #30A4FB;
     -fx-scale-y: 1.1;
 }
-
 .button:pressed {
     -fx-background-color: rgb(46, 134, 202);
 }
-
 .userNameLabel {
   -fx-font-size: 20;
   -fx-font-weight: 700;

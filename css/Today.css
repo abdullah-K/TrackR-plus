@@ -16,12 +16,12 @@
 .default-color7.chart-pie { -fx-pie-color: #FF687E; }
 
 .chart-pie-label-line {
-    -fx-stroke: #FFFFFF;
+    -fx-stroke: #30A4FB;
     
-    -fx-fill: #FFFFFF;
+    -fx-fill: #30A4FB;
 }
 .chart-pie-label {
-    -fx-fill: #FFFFFF;
+    -fx-fill: #30A4FB;
     -fx-font-family: "Helvetica";
     -fx-font-size: 10;
 }
@@ -47,6 +47,12 @@
 }
 .progress-bar {
     -fx-accent: #2DE5A6;
+}
+.progress-indicator {
+    -fx-accent: #2DE5A6;
+}
+.progress-indicator .percentage {
+    -fx-fill: #ffffff ;
 }
 .scrollPane  > .viewport {
     -fx-background-color: #424252; 
