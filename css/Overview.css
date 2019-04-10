@@ -46,5 +46,5 @@
     -fx-stroke-width: 2px;
     -fx-effect: null;
 }
-/* .default-color0.chart-area-symbol { -fx-background-color: #2DE5A6, #ffa07a; }
-.default-color1.chart-area-symbol { -fx-background-color: #FF687E, #fffacd; } */
+.default-color0.chart-line-symbol { -fx-background-color: #2DE5A6, white; }
+.default-color1.chart-line-symbol { -fx-background-color: #FF687E, white; }

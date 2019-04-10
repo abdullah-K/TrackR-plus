@@ -36,6 +36,8 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.CategoryAxis;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class TodayGUI extends Application {
 
@@ -48,11 +50,12 @@ public class TodayGUI extends Application {
   private Button progressButton;
   private Button expenses;
   private Button exit;
-  private Label totalExpensesNum =new Label();
-  private Label ovExpensesNumber =new Label();
-  private Label ovIncomeNumber =new Label();
-  private Label spendingHistory =new Label(); 
-  private Label currentGoal =new Label();
+  private Label totalExpensesNum = new Label();
+  private Label ovExpensesNumber = new Label();
+  private Label ovIncomeNumber = new Label();
+  private Label ovStatus = new Label();
+  private Label spendingHistory = new Label(); 
+  private Label currentGoal = new Label();
 
   public static void main(String[] args) {
     launch(args);
@@ -60,7 +63,7 @@ public class TodayGUI extends Application {
 
   public void loginCheck(Stage primaryStage, Scene todayScene) {
     // check if file exists to see if it goes the today scene or login scene
-    userNameLabel= new Label();
+    userNameLabel = new Label();
     accBalanceLabel = new Label("Your current balance is $0.0");
     accGoalsLabel = new Label("Your current savings goal is $0.0");
     File userFile = new File("./user.json");
@@ -125,7 +128,9 @@ public class TodayGUI extends Application {
     // Adds an event handler that changes the scene to the overview tab
     overview.setOnAction(event -> {
       ovExpensesNumber.setText("$" + user.getTotalExpenses());
-      ovIncomeNumber.setText("$" + user.getInflowArrayTotal());
+      ovIncomeNumber.setText("$" + user.getInflowArrayTotal()); 
+      int temp = (int)(user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal())); //added
+      ovStatus.setText("You've spent " +  temp + "% of\n       your balance!\n            Careful"); //added
       stage.setScene(overviewScene);
     });
     
@@ -148,16 +153,60 @@ public class TodayGUI extends Application {
   }
 
   /**
+   * Creates a line chart for the overview page that displays a weekly graph of income vs expenses
+   */
+  public LineChart createLineChart(BorderPane overviewRoot) {
+    // Line graph for Income vs Expenses
+    NumberAxis yAxis = new NumberAxis();
+    CategoryAxis xAxis = new CategoryAxis();
+    xAxis.setLabel("Day");
+    LineChart<String,Number> incomeExpensesGraph = new LineChart<String,Number>(xAxis, yAxis);
+    incomeExpensesGraph.setCreateSymbols(false);
+    incomeExpensesGraph.getStylesheets().add("css/Overview.css");
+    overviewRoot.setAlignment(incomeExpensesGraph, Pos.CENTER);
+    incomeExpensesGraph.setMaxSize(735, 340); 
+    incomeExpensesGraph.setMinSize(735, 340);
+    incomeExpensesGraph.setTitle("Income vs Expenses");
+
+    XYChart.Series<String, Number> incomeSeries = new XYChart.Series<>();
+    incomeSeries.setName("Income");
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 1000));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Monday", 1000));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 9900));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 9050));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 7060));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Friday", user.getInflowArrayTotal()));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Saturday", 0));
+
+    XYChart.Series<String, Number> expensesSeries = new XYChart.Series<>();
+    expensesSeries.setName("Expenses");
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 400));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Monday", 200));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 600));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 500));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 970));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Friday", user.getTotalExpenses()));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Saturday", 0));
+
+    incomeExpensesGraph.getData().add(incomeSeries); 
+    incomeExpensesGraph.getData().add(expensesSeries);
+    return incomeExpensesGraph;
+  }
+
+  /**
    * creates and returns a scroll pane for a certain category
    */
   public ScrollPane createScrollPane(ArrayList<Double> array) {
     // https://docs.oracle.com/javafx/2/ui_controls/scrollpane.htm helped
     // creates a scroll pane with each category's array elements
-    //System.out.println(array.size());
+    Calendar cal = Calendar.getInstance();
+    String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+    String dayOfMonth = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
+    String year = String.valueOf(cal.get(Calendar.YEAR));
     ArrayList<Label> scrollList = new ArrayList<Label>();
     for (int i = 0; i < array.size(); i++) {
       //System.out.println(array.get(i));
-      Label tempLabel = new Label("$" + String.valueOf(array.get(i)));
+      Label tempLabel = new Label(month +" " + dayOfMonth + ", " + year + ": $" + String.valueOf(array.get(i)));
       scrollList.add(tempLabel);
       tempLabel.setStyle("-fx-text-fill: #e6e6e6; -fx-font-size: 15;");
 
@@ -254,7 +303,7 @@ public class TodayGUI extends Application {
     // GOALS TAB_______________________________________________________________________________________
     BorderPane goalsRoot = new BorderPane();
     HBox goalsHbox = new HBox();
-    goalsHbox.setSpacing(208);
+    goalsHbox.setSpacing(135);
     goalsRoot.setPadding(new Insets(10, 10, 10, 1));
 
     VBox goalsVbox = new VBox();
@@ -273,21 +322,32 @@ public class TodayGUI extends Application {
     double progress = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
     ProgressBar goalsProgressBar = new ProgressBar(progress / 100); // change 0 to progress.
     ProgressIndicator progressIndicator = new ProgressIndicator(progress / 100);
+    progressIndicator.setPrefSize(40, 40);
     goalsProgressBar.setMinHeight(15);
     goalsProgressBar.setMinWidth(250);
+    HBox topProgressBars = new HBox();
+    topProgressBars.setAlignment(Pos.CENTER);
+    topProgressBars.setSpacing(10);
+    topProgressBars.getChildren().addAll(goalsProgressBar, progressIndicator);
 
     // Top VBox for current goal and goals progress labels
     VBox goalsTop = new VBox();
     goalsTop.setPadding(new Insets(10, 10, 10, 10));
-    goalsTop.getChildren().addAll(currentGoal, spendingHistory, goalsProgressBar, progressIndicator);
+    //goalsTop.getChildren().addAll(currentGoal, spendingHistory, goalsProgressBar, progressIndicator);
+    goalsTop.getChildren().addAll(currentGoal, spendingHistory, topProgressBars);
     goalsTop.setSpacing(10);
     goalsTop.setAlignment(Pos.CENTER);
 
     setGoalButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
         double savingsAmount = Double.parseDouble(setInput.getText());
-        user.setSavingsGoal(savingsAmount);
-        currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+        if(savingsAmount > 0) {
+            user.setSavingsGoal(savingsAmount);
+            currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+        }
+        else {
+            currentGoal.setText("Please enter a valid number");
+        }
       }
     });
 
@@ -482,11 +542,11 @@ public class TodayGUI extends Application {
     spendCategoriesBackButton.getStylesheets().add("css/Today.css");
 
     // https://docs.oracle.com/javafx/2/ui_controls/button.htm
-    Image eduIcon = new Image("public/educationIcon.png", 95, 75, false, false);
-    Image foodIcon = new Image("public/foodIcon.png", 75, 75, false, false);
-    Image homeIcon = new Image("public/homeIcon.png", 75, 75, false, false);
-    Image autoIcon = new Image("public/autoIcon.png", 85, 75, false, false);
-    Image othersIcon = new Image("public/othersIcon.png", 75, 75, false, false);
+    Image eduIcon = new Image("public/educationIcon.png", true);
+    Image foodIcon = new Image("public/foodIcon.png", true);
+    Image homeIcon = new Image("public/homeIcon.png", true);
+    Image autoIcon = new Image("public/autoIcon.png", true);
+    Image othersIcon = new Image("public/othersIcon.png", true);
 
     eduCategoryButton.setGraphic(new ImageView(eduIcon));
     foodCategoryButton.setGraphic(new ImageView(foodIcon));
@@ -546,9 +606,14 @@ public class TodayGUI extends Application {
     depositAmountButton.setOnAction(new EventHandler<ActionEvent>() { // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       public void handle(ActionEvent e) {
         double depositAmount = Double.parseDouble(depositField.getText());
-        user.deposit(depositAmount);
-        accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
-        lastDepositAmount.setText("$" + depositAmount);
+        if(depositAmount <= 0) {
+            lastDepositAmount.setText("Please enter a valid number");
+        }
+        else {
+            user.deposit(depositAmount);
+            accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
+            lastDepositAmount.setText("$" + depositAmount);
+        }
       }
     });
 
@@ -572,7 +637,6 @@ public class TodayGUI extends Application {
     Scene depositScene = new Scene(depositRoot, 1000, 600);
     depositScene.getStylesheets().add("css/Today.css");
     depositButton.setOnAction(e -> primaryStage.setScene(depositScene)); // Changes the scene to the deposit screen, the button is pressed
-    depositBackButton.setOnAction(e -> primaryStage.setScene(todayScene)); // Changes the scene to the main Today tab, if the back button is pressed
 
     // Spend scene labels and spend text field
     VBox spendLabelRoot = new VBox();
@@ -585,11 +649,16 @@ public class TodayGUI extends Application {
     spendAmount.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
         double spendingAmount = Double.parseDouble(spendingField.getText());
-        user.spendByCategory(user.getCategory(), spendingAmount);
-        expensesAmountLabel.setText("$" + user.getTotalExpenses());
-        createScrollPane(user.getEducationExpenses());
-        spendingField.setText("");
-        accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
+        if(spendingAmount > 0) {
+            user.spendByCategory(user.getCategory(), spendingAmount);
+            expensesAmountLabel.setText("$" + user.getTotalExpenses());
+            createScrollPane(user.getEducationExpenses());
+            spendingField.setText("");
+            accBalanceLabel.setText("Your current balance is $" + user.getUserBalance());
+        }
+        else {
+            expensesAmountLabel.setText("Please enter a valid number");
+        }
       }
     });
 
@@ -672,24 +741,6 @@ public class TodayGUI extends Application {
     // adds a percentage label
     chartRoot.getChildren().add(caption);
 
-    // back button to today that updates pie chart
-    spendCategoriesBackButton.setOnAction(event -> {
-      // categorizedExpenses.setData(expensesData);
-      ObservableList<PieChart.Data> expensesData2 = FXCollections.observableArrayList(
-          new PieChart.Data("Education", user.getTotalExpensesByCategory(user.getEducationExpenses())),
-          new PieChart.Data("Home", user.getTotalExpensesByCategory(user.getHomeExpenses())),
-          new PieChart.Data("Food", user.getTotalExpensesByCategory(user.getFoodExpenses())),
-          new PieChart.Data("Auto & Transporation", user.getTotalExpensesByCategory(user.getTransportationExpenses())),
-          new PieChart.Data("Others", user.getTotalExpensesByCategory(user.getOtherExpenses())));
-      categorizedExpenses.setData(expensesData2);
-      for (PieChart.Data data2 : categorizedExpenses.getData()) {
-        data2.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, e -> {
-          caption.setText(String.valueOf("$" + data2.getPieValue()));
-        });
-      }
-      primaryStage.setScene(todayScene);
-    });
-
     // OVERVIEW __________________________________________________________________________________________
     BorderPane overviewRoot= new BorderPane();
     HBox overviewTop = new HBox();
@@ -711,13 +762,15 @@ public class TodayGUI extends Application {
     overviewExpenses.setAlignment(Pos.CENTER);
     overviewExpenses.setMaxSize(225, 175);
     overviewExpenses.setMinSize(225, 175);
-    VBox overviewProfit = new VBox();
-    overviewProfit.setStyle("-fx-background-color: #1D2027;");
-    overviewProfit.setAlignment(Pos.CENTER);
-    overviewProfit.setMaxSize(225, 175);
-    overviewProfit.setMinSize(225, 175);
+    VBox overviewStatus = new VBox();
+    overviewStatus.setStyle("-fx-background-color: #1D2027;");
+    overviewStatus.setAlignment(Pos.CENTER);
+    overviewStatus.setMaxSize(225, 175);
+    overviewStatus.setMinSize(225, 175);
 
     ovIncomeNumber.setStyle("-fx-font-size:30");
+    ovStatus.setStyle("-fx-font-size:20; -fx-font-family: SanSerif");
+    ovStatus.setWrapText(true);
     Label ovIncomeLabel = new Label("Income");
     ovIncomeLabel.setStyle("-fx-text-fill: #30A4FB; -fx-font-family: SanSerif; -fx-font-size:20");
     ovExpensesNumber.setStyle("-fx-font-size:30");
@@ -726,47 +779,43 @@ public class TodayGUI extends Application {
 
     overviewIncome.getChildren().addAll(ovIncomeNumber, ovIncomeLabel);
     overviewExpenses.getChildren().addAll(ovExpensesNumber, ovExpensesLabel);
-    overviewTop.getChildren().addAll(overviewIncome, overviewExpenses, overviewProfit);
-
-    // Line graph for Income vs Expenses
-    NumberAxis yAxis = new NumberAxis();
-    CategoryAxis xAxis = new CategoryAxis();
-    xAxis.setLabel("Day");
-    LineChart<String,Number> incomeExpensesGraph = new LineChart<String,Number>(xAxis, yAxis);
-    incomeExpensesGraph.getStylesheets().add("css/Overview.css");
-    overviewRoot.setAlignment(incomeExpensesGraph, Pos.CENTER);
-    incomeExpensesGraph.setMaxSize(735, 340); 
-    incomeExpensesGraph.setMinSize(735, 340);
-    incomeExpensesGraph.setTitle("Income vs Expenses");
-
-    XYChart.Series<String, Number> incomeSeries = new XYChart.Series<>();
-    incomeSeries.setName("Income");
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Monday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Friday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Saturday", 1000));
-
-    XYChart.Series<String, Number> expensesSeries = new XYChart.Series<>();
-    expensesSeries.setName("Expenses");
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 300));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Monday", 600));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 500));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 500));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 600));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Friday", 10));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Saturday", 100));
-
-    incomeExpensesGraph.getData().add(incomeSeries); 
-    incomeExpensesGraph.getData().add(expensesSeries);
+    overviewStatus.getChildren().addAll(ovStatus);
+    overviewTop.getChildren().addAll(overviewIncome, overviewExpenses, overviewStatus);
 
     overviewRoot.setTop(overviewTop);
-    overviewRoot.setCenter(incomeExpensesGraph);
+    overviewRoot.setCenter(createLineChart(overviewRoot));
     
     Scene overviewScene = new Scene(overviewHBox, 1000, 600);
     overviewScene.getStylesheets().add("css/categories.css");
+
+    // back button to today that updates pie chart and the progress bar/indicator
+    spendCategoriesBackButton.setOnAction(event -> {
+        currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+        double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+        goalsProgressBar.setProgress(progressPercent / 100);
+        progressIndicator.setProgress(progressPercent / 100);
+        ObservableList<PieChart.Data> expensesData2 = FXCollections.observableArrayList(
+            new PieChart.Data("Education", user.getTotalExpensesByCategory(user.getEducationExpenses())),
+            new PieChart.Data("Home", user.getTotalExpensesByCategory(user.getHomeExpenses())),
+            new PieChart.Data("Food", user.getTotalExpensesByCategory(user.getFoodExpenses())),
+            new PieChart.Data("Auto & Transporation", user.getTotalExpensesByCategory(user.getTransportationExpenses())),
+            new PieChart.Data("Others", user.getTotalExpensesByCategory(user.getOtherExpenses())));
+        categorizedExpenses.setData(expensesData2);
+        for (PieChart.Data data2 : categorizedExpenses.getData()) {
+          data2.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, e -> {
+            caption.setText(String.valueOf("$" + data2.getPieValue()));
+          });
+        }
+        //Update the overview graph to reflect the new expenses/balance
+        overviewRoot.setCenter(createLineChart(overviewRoot));
+        primaryStage.setScene(todayScene);
+      });
+
+    //Changes the scene from the deposit screen back to the today tab and updates the overview graph
+    depositBackButton.setOnAction(event -> {
+        overviewRoot.setCenter(createLineChart(overviewRoot));
+        primaryStage.setScene(todayScene);
+    });
 
     // Saves the users information upon closing the file______________________________________________________________________
     primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
