@@ -22,4 +22,11 @@ to compile:
 to execute:
 `java -cp .:lib/java-json.jar:lib/jfxrt.jar TodayGUI`
 
+## Running Test files
+to compile: 
+`javac -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar *.java`
+
+to execute:
+`java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar org.junit.runner.JUnitCore UserAttributesTest or UserTest`
+
 **important**: replace the `:` with `;` in the commands above if running on Windows
