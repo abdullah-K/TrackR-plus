@@ -109,12 +109,14 @@ public class TodayGUI extends Application {
 
     today.setOnAction(event -> {
       accGoalsLabel.setText("Your current savings goal is: $" + user.getSavingsGoal());
+      userNameLabel.setText("Does this work");
       stage.setScene(todayScene);
     });
 
     // Changes the scene to the expenses tab
     expenses.setOnAction(event -> {
       totalExpensesNum.setText("$" + user.getTotalExpenses());
+      
       stage.setScene(expensesScene);
 
     });
@@ -130,7 +132,7 @@ public class TodayGUI extends Application {
       ovExpensesNumber.setText("$" + user.getTotalExpenses());
       ovIncomeNumber.setText("$" + user.getInflowArrayTotal()); 
       int temp = (int)(user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal())); //added
-      ovStatus.setText("You've spent " +  temp + "% of\n       your balance!\n            Careful"); //added
+      ovStatus.setText("You've spent " +  temp + "% of\n       your income!\n            Careful!"); //added
       stage.setScene(overviewScene);
     });
     
@@ -170,21 +172,21 @@ public class TodayGUI extends Application {
 
     XYChart.Series<String, Number> incomeSeries = new XYChart.Series<>();
     incomeSeries.setName("Income");
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Monday", 1000));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 9900));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 9050));
-    incomeSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 7060));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 0));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Monday", 0));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 0));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 0));
+    incomeSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 0));
     incomeSeries.getData().add(new XYChart.Data<String, Number>("Friday", user.getInflowArrayTotal()));
     incomeSeries.getData().add(new XYChart.Data<String, Number>("Saturday", 0));
 
     XYChart.Series<String, Number> expensesSeries = new XYChart.Series<>();
     expensesSeries.setName("Expenses");
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 400));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Monday", 200));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 600));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 500));
-    expensesSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 970));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Sunday", 0));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Monday", 0));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Tuesday", 0));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Wednesday", 0));
+    expensesSeries.getData().add(new XYChart.Data<String, Number>("Thursday", 0));
     expensesSeries.getData().add(new XYChart.Data<String, Number>("Friday", user.getTotalExpenses()));
     expensesSeries.getData().add(new XYChart.Data<String, Number>("Saturday", 0));
 
@@ -521,7 +523,6 @@ public class TodayGUI extends Application {
     labelRoot.setAlignment(Pos.CENTER);
     labelRoot.getChildren().addAll(accBalanceLabel, accGoalsLabel);
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // New scene for spending, allows the user to pick a category and spend in the
     // corresponding category
     BorderPane spendCategoriesRoot = new BorderPane();
@@ -645,7 +646,8 @@ public class TodayGUI extends Application {
     Label expensesAmountLabel = new Label("$" + user.getTotalExpenses());
     TextField spendingField = new TextField();
 
-    Button spendAmount = new Button("Spend Amount"); // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    //Spend button that allows a user to choose a category to spend in and then updates the according labels
+    Button spendAmount = new Button("Spend Amount"); 
     spendAmount.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent e) {
         double spendingAmount = Double.parseDouble(spendingField.getText());
@@ -685,9 +687,6 @@ public class TodayGUI extends Application {
     spendButton.setOnAction(e -> primaryStage.setScene(spendCategoriesScene));
     // Changes the scene to the main Today tab, if the back button is pressed
     spendBackButton.setOnAction(e -> primaryStage.setScene(spendCategoriesScene));
-
-    // spendCategoriesBackButton.setOnAction(e ->
-    // primaryStage.setScene(todayScene));
 
     eduCategoryButton.setOnAction(event -> {
       primaryStage.setScene(spendScene);
@@ -741,7 +740,7 @@ public class TodayGUI extends Application {
     // adds a percentage label
     chartRoot.getChildren().add(caption);
 
-    // OVERVIEW __________________________________________________________________________________________
+    // OVERVIEW TAB__________________________________________________________________________________________
     BorderPane overviewRoot= new BorderPane();
     HBox overviewTop = new HBox();
     overviewRoot.setAlignment(overviewTop, Pos.CENTER);
@@ -792,8 +791,8 @@ public class TodayGUI extends Application {
     spendCategoriesBackButton.setOnAction(event -> {
         currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
         double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
-        goalsProgressBar.setProgress(progressPercent / 100);
-        progressIndicator.setProgress(progressPercent / 100);
+        goalsProgressBar.setProgress(progressPercent / 100.0);
+        progressIndicator.setProgress(progressPercent / 100.0);
         ObservableList<PieChart.Data> expensesData2 = FXCollections.observableArrayList(
             new PieChart.Data("Education", user.getTotalExpensesByCategory(user.getEducationExpenses())),
             new PieChart.Data("Home", user.getTotalExpensesByCategory(user.getHomeExpenses())),
@@ -813,8 +812,13 @@ public class TodayGUI extends Application {
 
     //Changes the scene from the deposit screen back to the today tab and updates the overview graph
     depositBackButton.setOnAction(event -> {
+        currentGoal.setText("Your current savings goal is: $" + user.getSavingsGoal());
+        double progressPercent = user.getProgress(user.getTotalExpenses(), user.getInflowArrayTotal());
+        goalsProgressBar.setProgress(progressPercent / 100.0);
+        progressIndicator.setProgress(progressPercent / 100.0);
         overviewRoot.setCenter(createLineChart(overviewRoot));
         primaryStage.setScene(todayScene);
+        
     });
 
     // Saves the users information upon closing the file______________________________________________________________________
