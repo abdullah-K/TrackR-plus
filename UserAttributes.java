@@ -265,12 +265,14 @@ public class UserAttributes extends User {
     try {
       File userFile = new File("user.json");
       JSONObject userData = new JSONObject();
+	    
       JSONArray homeArray = new JSONArray(homeExpenses);
       JSONArray foodArray = new JSONArray(foodExpenses);
       JSONArray educationArray = new JSONArray(educationExpenses);
       JSONArray transportationArray = new JSONArray(transportationExpenses);
       JSONArray otherArray = new JSONArray(otherExpenses);
       JSONArray inflowArr = new JSONArray(inflowArray);
+	    
       userData.put("homeArray", homeArray);
       userData.put("foodArray", foodArray);
       userData.put("educationArray", educationArray);
@@ -280,6 +282,7 @@ public class UserAttributes extends User {
       userData.put("userName", getUserName());
       userData.put("userBalance", getUserBalance());
       userData.put("savingsGoal", getSavingsGoal());
+	    
       FileWriter write = new FileWriter(userFile.getAbsoluteFile());
       String jsonText = userData.toString();
       write.write(jsonText);
@@ -290,5 +293,4 @@ public class UserAttributes extends User {
 
     }
   }
-
 }
