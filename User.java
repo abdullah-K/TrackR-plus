@@ -75,6 +75,7 @@ public class User {
   *sets name of user 
   */
   public void setUserName(String userName) {
+
     this.userName = userName;
   }
 
@@ -95,7 +96,9 @@ public class User {
   *sets the balance of the user
   */
   public void setUserBalance(double userBalance) {
-    this.userBalance = userBalance;
+    if(userBalance > 0) {
+      this.userBalance = userBalance;
+    }
   }
 
 }

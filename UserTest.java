@@ -2,44 +2,43 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class UserTest
-{
-    @Test public void testNameGetter()
+{ 
+    @Test 
+    public void testSetName()
     {
-	User user = new User("./user.json");
-	assertEquals("Mathew", user.getUserName());
+        User user = new User("testName", 1000, 100);
+        user.setUserName("test");
+        assertEquals("test", user.getUserName());
     }
 
-    @Test public void testSavingsGoalGetter()
+    @Test 
+    public void testSavingsGoalGetter()
     {
-	User user = new User("./user.json");
-	assertEquals(20000d, user.getSavingsGoal(),0.00001d);
+        User user = new User("testName", 1000, 100);
+        assertEquals(100d, user.getSavingsGoal(),0.00001d);
     }
 
-
-    @Test public void testUserBalanceGetter()
+    @Test 
+    public void testSetUserBalanceNegative()
     {
-	User user = new User("./user.json");
-	assertEquals(1047930d, user.getUserBalance(),0.00001d);
+        User user = new User("testName", 0, 0);
+        user.setUserBalance(-500);
+        assertEquals("Set user balance to a negative amount, no change expected",0d, user.getUserBalance(),0.00001d);
     }
 
-    @Test public void testSetUserName()
+    @Test 
+    public void testUserBalanceGetter()
     {
-	User user = new User("./user.json");
-	user.setUserName("haiyang");
-	assertEquals("haiyang", user.getUserName());
+        User user = new User("testName", 1000, 100);
+        assertEquals("Get the user balance (set by a constructor)",1000d, user.getUserBalance(),0.00001d);
     }
 
-    @Test public void testSetSavingsGoal()
+    @Test 
+    public void testSetSavingsGoalNegative()
     {
-	User user = new User("./user.json");
-	user.setSavingsGoal(15d);
-	assertEquals(15d, user.getSavingsGoal(),0.00001d);
+        User user = new User("testName", 1000, 0);
+        user.setSavingsGoal(-150d);
+        assertEquals("Set user savings goal to a negative amount, no change expected", 0d, user.getSavingsGoal(),0.00001d);
     }
 
-    @Test public void testSetUserBalance()
-    {
-	User user = new User("./user.json");
-	user.setUserBalance(100d);
-	assertEquals(100d, user.getUserBalance(),0.00001d);
-    }
 }
