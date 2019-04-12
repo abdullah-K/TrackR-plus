@@ -1,32 +1,23 @@
-# TrackR+
+# TrackR+ - Tests
 
-TrackR+ is a personal expense tracker
-
-The text version of this program contains a home navigation with 3 menus,
-each allowing the user to interact with the app and keep track of incoming and
-outgoing flow of money into their personal account.
-
-The GUI based version, allows the user to navigate between 3 menus, including a Today tab which has a detailed pie-chart that describes the users spending, an Expenses tab which allows the user to log different expenses according to several categories, and a goals tab which gives the user the ability to set a new savings goal.
-
-## Running text-based version
+## Running JUnit tests
 to compile:
-`javac -cp .:lib/java-json.jar *.java`
-
-to execute:
-`java -cp .:lib/java-json.jar Main`
-
-## Running GUI-based version 
-to compile: 
-`javac -cp .:lib/java-json.jar:lib/jfxrt.jar *.java`
-
-to execute:
-`java -cp .:lib/java-json.jar:lib/jfxrt.jar TodayGUI`
-
-## Running Test files
-to compile: 
 `javac -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar *.java`
 
 to execute:
-`java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar org.junit.runner.JUnitCore UserAttributesTest or UserTest`
+`java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar org.junit.runner.JUnitCore UserTest`
+`java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar org.junit.runner.JUnitCore UserAttributesTest`
 
-**important**: replace the `:` with `;` in the commands above if running on Windows
+## Running JSON tester
+JSON Tester populates the user's JSON file with "fake" data in order to demo the features of TrackR+
+
+to compile: 
+`javac -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar *.java`
+
+*make sure a `user.json` file does not already exist before running JSONTester*
+
+to execute:
+`java -cp .:junit-4.12.jar:hamcrest-core-1.3.jar:lib/java-json.jar JSONTester`
+
+
+**important**: replace the `:` with `;` in all the commands above if running on Windows
