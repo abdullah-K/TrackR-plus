@@ -15,6 +15,9 @@ public class Login {
 
   private JSONObject userData;
 
+  /**
+  * creates a file with the information from when the user logged in 
+  */
   public void userLoginGUI(String nameInput, double balanceInput, double goal) {
     try {
       goal = 0; 
